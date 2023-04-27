@@ -32,6 +32,7 @@ class DataHttpClient {
                 json(Json {
                     prettyPrint = true
                     isLenient = true
+                    ignoreUnknownKeys = true
                 })
             }
         }
@@ -52,20 +53,30 @@ class DataHttpClient {
 data class ActualWeather(
     val now_dt: String?,
     val geo_object: GeoObject,
-    val temp: Int?,
-    val feels_like: Int?,
-    val icon: String?,
-    val conditions: String?,
-)
+    val fact: Fact,
+
+    )
 
 @Serializable
 data class GeoObject(
-    val locality: String?,
+    val locality: Locality,
 )
 
+@Serializable
+data class Locality(
+    val name: String?,
+)
+
+@Serializable
+data class Fact(
+    val temp: Int?,
+    val feels_like: Int?,
+    val icon: String?,
+    val condition: String?,
+)
 
 data class Forecasts(
-    val dates: List<ForecastDate>
+    val dates: List<ForecastDate>,
 )
 
 data class ForecastDate(
