@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">Test Weather Appcilation</string>
+    <string name="longitude">Долгота</string>
+    <string name="latitude">Широта</string>
+    <string name="input_coordinates">Введите координаты</string>
+    <string name="get_weather">Узнать погоду</string>
+    <string name="check_cities">Посмотреть города</string>
+    <string name="tokyo">Токио</string>
+    <string name="ottawa">Оттава</string>
+    <string name="kigali">Кигали</string>
 </resources>

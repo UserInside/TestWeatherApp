@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,39 +8,161 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
+        android:layout_height="wrap_content">
+
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            >
+            android:layout_margin="16dp"
+            android:orientation="vertical">
 
             <TextView
-                android:id="@+id/text_region"
+                android:id="@+id/text_location"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="region"
-                android:textSize="60sp"
-                />
+                android:text="@{viewModel.stateFlow.value.actualWeather?.geo_object?.district?.name}"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/text_actual_time_and_yesterday_temp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingBottom="32dp"
+                android:text="сейчас время. вчера в это время темп"
+                android:textSize="16sp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingBottom="32dp">
+
+                <TextView
+                    android:id="@+id/text_actual_temp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="+15"
+                    android:textSize="48sp" />
+
+
+                <ImageView
+                    android:id="@+id/image_condition"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" >
+
+                    <TextView
+                        android:id="@+id/text_condition"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:text="Облачно"/>
+
+                    <TextView
+                        android:id="@+id/text_feels_like"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:text="Ощущается "/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="32dp">
+
+                <TextView
+                    android:id="@+id/wind"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="wind"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/humidity"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="humidity"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/pressure"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="pressure"
+                    android:textSize="16sp" />
+
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/input_coordinates" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:autofillHints="latitudeCoordinate"
+                    android:background="@drawable/border"
+                    android:hint="@string/latitude"
+                    android:inputType="number" />
+
+                <EditText
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    android:autofillHints="longitudeCoordinate"
+                    android:background="@drawable/border"
+                    android:hint="@string/longitude"
+                    android:inputType="number" />
+            </LinearLayout>
 
             <Button
                 android:id="@+id/btn_getWeather"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Get weather"
-                />
+                android:text="@string/get_weather" />
 
-            <Button
-                android:id="@+id/btn_refresh"
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="refresh"
-                />
+                android:text="@string/check_cities" />
+
+            <Button
+                android:id="@+id/btn_tokyo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tokyo" />
+
+            <Button
+                android:id="@+id/btn_ottawa"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ottawa" />
+
+            <Button
+                android:id="@+id/btn_kigali"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/kigali" />
 
         </LinearLayout>
 
     </FrameLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+</FrameLayout>

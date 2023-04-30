@@ -18,13 +18,12 @@ class WeatherGatewayImplementation(
     override suspend fun request(): WeatherEntity {
         return WeatherEntity(dataHttpClient.request())
     }
-
 }
 
-class DataHttpClient {
-
-//    val lat : String
-//    val lon : String
+class DataHttpClient(
+    val lat : Double = 55.75396,
+    val lon : Double = 37.620393,
+) {
 
     suspend fun request(): ActualWeather {
         val client = HttpClient(OkHttp) {
@@ -37,7 +36,7 @@ class DataHttpClient {
             }
         }
         val response: HttpResponse =
-            client.get("https://api.weather.yandex.ru/v2/forecast?lat=55.75396&lon=37.620393") {
+            client.get("https://api.weather.yandex.ru/v2/forecast?lat=$lat&lon=$lon") {
                 header("X-Yandex-API-Key", "9274936d-2c16-4189-a90c-f88b5cf4a034")
             }
 
@@ -52,19 +51,30 @@ class DataHttpClient {
 @Serializable
 data class ActualWeather(
     val now_dt: String?,
-    val geo_object: GeoObject,
-    val fact: Fact,
-
-    )
+    val geo_object: GeoObject?,
+    val yesterday: Yesterday?,
+    val fact: Fact?,
+)
 
 @Serializable
 data class GeoObject(
-    val locality: Locality,
+    val district: District?,
+    val locality: Locality?,
+)
+
+@Serializable
+data class District(
+    var name: String?,
 )
 
 @Serializable
 data class Locality(
-    val name: String?,
+    var name: String?,
+)
+
+@Serializable
+data class Yesterday(
+    val temp: Int?,
 )
 
 @Serializable
