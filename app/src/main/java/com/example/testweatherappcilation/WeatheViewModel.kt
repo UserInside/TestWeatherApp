@@ -20,10 +20,10 @@ class WeatherViewModel : ViewModel() {
         fetchData()
     }
 
-    private fun fetchData() {
+    private fun fetchData(lat: Double = 55.75396, lon: Double = 37.620393) {
         try {
             viewModelScope.launch {
-                val weatherEntity = getWeatherEntity()
+                val weatherEntity = getWeatherEntity(lat, lon)
                 _stateFlow.update {
                     it.copy(
                         actualWeather = weatherEntity.actualWeather
@@ -36,7 +36,7 @@ class WeatherViewModel : ViewModel() {
         }
     }
 
-    suspend fun getWeatherEntity(lat: Double = 55.75396, lon: Double = 37.620393): WeatherEntity {
+    suspend fun getWeatherEntity(lat: Double, lon: Double): WeatherEntity {
         val dataHttpClient = DataHttpClient(lat, lon)
         val weatherGateway: WeatherGateway = WeatherGatewayImplementation(dataHttpClient)
         val weatherInteractor = WeatherInteractor(weatherGateway)
@@ -48,6 +48,22 @@ class WeatherViewModel : ViewModel() {
         _stateFlow.value.actualWeather?.geo_object?.district?.name = ""
         _stateFlow.value.actualWeather?.geo_object?.locality?.name = ""
 
+    }
+
+    fun getWeatherByCoordinates(lat: Double, lon: Double) {
+        fetchData(lat, lon)
+    }
+
+    fun getTokyoWeather() {
+        fetchData(35.6895, 139.692)
+    }
+
+    fun getOttawaWeather() {
+        fetchData(	45.4112, -75.6981)
+    }
+
+    fun getKigaliWeather() {
+        fetchData(-1.94995, 30.0588)
     }
 
 }

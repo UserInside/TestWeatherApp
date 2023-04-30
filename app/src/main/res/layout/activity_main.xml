@@ -54,21 +54,21 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical" >
+                    android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/text_condition"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="16sp"
-                        android:text="Облачно"/>
+                        android:text="Облачно"
+                        android:textSize="16sp" />
 
                     <TextView
                         android:id="@+id/text_feels_like"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="16sp"
-                        android:text="Ощущается "/>
+                        android:text="Ощущается "
+                        android:textSize="16sp" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -99,8 +99,6 @@
                     android:layout_height="wrap_content"
                     android:text="pressure"
                     android:textSize="16sp" />
-
-
             </LinearLayout>
 
             <TextView
@@ -114,21 +112,25 @@
                 android:orientation="horizontal">
 
                 <EditText
+                    android:id="@+id/edit_latitude"
                     android:layout_width="150dp"
                     android:layout_height="wrap_content"
                     android:autofillHints="latitudeCoordinate"
                     android:background="@drawable/border"
                     android:hint="@string/latitude"
-                    android:inputType="number" />
+                    android:inputType="numberDecimal"
+                    android:textColorHint="#80000000" />
 
                 <EditText
+                    android:id="@+id/edit_longitude"
                     android:layout_width="150dp"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="16dp"
                     android:autofillHints="longitudeCoordinate"
                     android:background="@drawable/border"
                     android:hint="@string/longitude"
-                    android:inputType="number" />
+                    android:inputType="numberDecimal"
+                    android:textColorHint="#80000000" />
             </LinearLayout>
 
             <Button
