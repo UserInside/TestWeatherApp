@@ -7,6 +7,7 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.serialization.kotlinx.json.*
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
@@ -21,8 +22,8 @@ class WeatherGatewayImplementation(
 }
 
 class DataHttpClient(
-    val lat : Double = 55.75396,
-    val lon : Double = 37.620393,
+    val lat: Double = 55.75396,
+    val lon: Double = 37.620393,
 ) {
 
     suspend fun request(): ActualWeather {
@@ -83,6 +84,28 @@ data class Fact(
     val feels_like: Int?,
     val icon: String?,
     val condition: String?,
+
+    val conditionsMap : Map<String, String> = mapOf(
+        "clear" to "ясно",
+        "partly-cloudy" to "малооблачно",
+        "cloudy" to "облачно с прояснениями",
+        "overcast" to "пасмурно",
+        "drizzle" to "морось",
+        "light-rain" to "небольшой дождь",
+        "rain" to "дождь",
+        "moderate-rain" to "умеренно сильный дождь",
+        "heavy-rain" to "сильный дождь",
+        "continuous-heavy-rain" to "длительный сильный дождь",
+        "showers" to "ливень",
+        "wet-snow" to "дождь со снегом",
+        "light-snow" to "небольшой снег",
+        "snow" to "снег",
+        "snow-showers" to "снегопад",
+        "hail" to "град",
+        "thunderstorm" to "гроза",
+        "thunderstorm-with-rain" to "дождь с грозой",
+        "thunderstorm-with-hail" to "гроза с градом",
+    )
 )
 
 data class Forecasts(
@@ -118,3 +141,4 @@ data class ForecastsHour(
     val temp: Int?,
     val condition: String,
 )
+

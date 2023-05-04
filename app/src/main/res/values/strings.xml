@@ -3,9 +3,10 @@
     <string name="longitude">Долгота</string>
     <string name="latitude">Широта</string>
     <string name="input_coordinates">Введите координаты</string>
-    <string name="get_weather">Узнать погоду</string>
+    <string name="get_weather_by_coordinates">Узнать погоду по координатам</string>
     <string name="check_cities">Посмотреть города</string>
     <string name="tokyo">Токио</string>
     <string name="ottawa">Оттава</string>
     <string name="kigali">Кигали</string>
+    <string name="get_weather_around">Узнать погоду вокруг меня</string>
 </resources>
