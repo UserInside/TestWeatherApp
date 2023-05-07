@@ -55,6 +55,17 @@ data class ActualWeather(
     val geo_object: GeoObject?,
     val yesterday: Yesterday?,
     val fact: Fact?,
+    val info: Info?,
+)
+
+@Serializable
+data class Info(
+    val tzinfo: TzInfo?,
+)
+
+@Serializable
+data class TzInfo(
+    val offset: Int?,
 )
 
 @Serializable
@@ -86,25 +97,25 @@ data class Fact(
     val condition: String?,
 
     val conditionsMap : Map<String, String> = mapOf(
-        "clear" to "ясно",
-        "partly-cloudy" to "малооблачно",
-        "cloudy" to "облачно с прояснениями",
-        "overcast" to "пасмурно",
-        "drizzle" to "морось",
-        "light-rain" to "небольшой дождь",
-        "rain" to "дождь",
-        "moderate-rain" to "умеренно сильный дождь",
-        "heavy-rain" to "сильный дождь",
-        "continuous-heavy-rain" to "длительный сильный дождь",
-        "showers" to "ливень",
-        "wet-snow" to "дождь со снегом",
-        "light-snow" to "небольшой снег",
-        "snow" to "снег",
-        "snow-showers" to "снегопад",
-        "hail" to "град",
-        "thunderstorm" to "гроза",
-        "thunderstorm-with-rain" to "дождь с грозой",
-        "thunderstorm-with-hail" to "гроза с градом",
+        "clear" to "Ясно",
+        "partly-cloudy" to "Малооблачно",
+        "cloudy" to "Облачно с прояснениями",
+        "overcast" to "Пасмурно",
+        "drizzle" to "Морось",
+        "light-rain" to "Небольшой дождь",
+        "rain" to "Дождь",
+        "moderate-rain" to "Умеренно сильный дождь",
+        "heavy-rain" to "Сильный дождь",
+        "continuous-heavy-rain" to "Длительный сильный дождь",
+        "showers" to "Ливень",
+        "wet-snow" to "Дождь со снегом",
+        "light-snow" to "Небольшой снег",
+        "snow" to "Снег",
+        "snow-showers" to "Снегопад",
+        "hail" to "Град",
+        "thunderstorm" to "Гроза",
+        "thunderstorm-with-rain" to "Дождь с грозой",
+        "thunderstorm-with-hail" to "Гроза с градом",
     )
 )
 

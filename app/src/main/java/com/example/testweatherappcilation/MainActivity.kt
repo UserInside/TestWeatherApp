@@ -1,26 +1,34 @@
 package com.example.testweatherappcilation
 
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker.PERMISSION_DENIED
 import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.ahmadrosid.svgloader.SvgLoader
 import com.example.testweatherappcilation.databinding.ActivityMainBinding
+import com.google.android.gms.location.CurrentLocationRequest
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import java.util.Calendar
+import java.time.format.DateTimeFormatterBuilder
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var binding: ActivityMainBinding
+    private lateinit var binding: ActivityMainBinding
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,28 +37,29 @@ class MainActivity : AppCompatActivity() {
 
         val viewModel: WeatherViewModel by viewModels()
 
-        val calendar = Calendar.getInstance()
-
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED) {
-                viewModel.stateFlow.collect {
+                viewModel.stateFlow.collect { it ->
                     val actualWeather = it.actualWeather
 
                     binding.textLocation.text =
                         "${actualWeather?.geo_object?.district?.name ?: ""}, ${actualWeather?.geo_object?.locality?.name ?: ""}" //todo поравить, чтобы при нал уходила запятая
 
                     val dataTemp = actualWeather?.yesterday?.temp
-                    val formatter = DateTimeFormatter.ofPattern("HH:mm")
-                    val current = LocalDateTime.now().format(formatter)
-                    val actualTime = actualWeather?.now_dt?.subSequence(
-                        11,
-                        16
-                    ) //todo сделать что учитывало пояс локации
+                    val formatterHours = DateTimeFormatter.ofPattern("HH")
+                    val formatterMinutes = DateTimeFormatter.ofPattern("mm")
+                    val offset = actualWeather?.info?.tzinfo?.offset?.div(360)
+
+                    val currentHours = LocalTime.parse(actualWeather?.now_dt?.subSequence(11,13) ?: "09", formatterHours)
+                    val currentMinutes = LocalTime.parse(actualWeather?.now_dt?.subSequence(14,16) ?: "11", formatterMinutes)
+
+//                    Log.i("WIIW", "${actualWeather?.now_dt?.subSequence(11,13).toString()}")
+//                    val actualTime = "${actualWeather?.now_dt?.subSequence(11,13).toString().toInt() + (offset ?: 0)}:" +
+//                            "${actualWeather?.now_dt?.subSequence(13,16)}"
+                    val actualTime = "$currentHours:$currentMinutes"
 
                     val yesterdayTemp: String =
-                        if ((dataTemp != null) && (dataTemp > 0)) "+$dataTemp" else "$dataTemp"  //todo delete non-null assert
-//                    binding.textActualTimeAndYesterdayTemp.text =
-//                        "Сейчас ${current}. Вчера в это время $yesterdayTemp o"
+                        if ((dataTemp != null) && (dataTemp > 0)) "+$dataTemp" else "$dataTemp"
 
                     val degreeSymbol = "\u00B0"
                     binding.textActualTimeAndYesterdayTemp.text =
@@ -58,26 +67,78 @@ class MainActivity : AppCompatActivity() {
 
                     val temp = actualWeather?.fact?.temp
                     val actualTemperature: String =
-                        if (temp != null && temp > 0) "+$temp$degreeSymbol" else "$temp$degreeSymbol"  //todo delete non-null assert
+                        if (temp != null && temp > 0) "+$temp$degreeSymbol" else "$temp$degreeSymbol"
                     binding.textActualTemp.text = actualTemperature
 
                     //load condition image
                     SvgLoader.pluck()
                         .with(this@MainActivity)
-                        .load("https://yastatic.net/weather/i/icons/funky/dark/${actualWeather?.fact?.icon}.svg", binding.imageCondition);
+                        .load(
+                            "https://yastatic.net/weather/i/icons/funky/dark/${actualWeather?.fact?.icon}.svg", //"ovc" не работает ?
+                            binding.imageCondition
+                        );
 
                     binding.textCondition.text =
                         "${actualWeather?.fact?.conditionsMap?.get(actualWeather.fact.condition)}"
                     binding.textFeelsLike.text = "Ощущается как ${actualWeather?.fact?.feels_like}"
 
                     binding.btnGetWeatherAround.setOnClickListener {
-                        when(ContextCompat.checkSelfPermission(this@MainActivity, ACCESS_COARSE_LOCATION)) {
+                        when (ContextCompat.checkSelfPermission(
+                            this@MainActivity,
+                            ACCESS_COARSE_LOCATION
+                        )) {
                             PERMISSION_GRANTED -> {
-                                Toast.makeText(this@MainActivity, "YAHOO", Toast.LENGTH_LONG).show()
-                            }
-                            PERMISSION_DENIED -> {
-                                Toast.makeText(this@MainActivity, "no way", Toast.LENGTH_LONG).show()
+                                fusedLocationClient =
+                                    LocationServices.getFusedLocationProviderClient(this@MainActivity)
 
+                                fusedLocationClient.getCurrentLocation(
+                                    CurrentLocationRequest.Builder().build(),
+                                    CancellationTokenSource().token //todo изучить
+                                ).addOnSuccessListener { location ->
+                                    try {
+                                        val lat: Double = location.latitude
+                                        val lon: Double = location.longitude
+
+                                        Log.i("WIIW", "${lat}, ${lon}")
+
+                                        if (lat in -90.0..90.0 && lon in -180.0..180.0) {
+                                            viewModel.getWeatherByCoordinates(lat, lon)
+                                        } else {
+                                            toastWrongCoordinates()
+                                        }
+
+                                    } catch (e: Throwable) {
+                                        toastWrongCoordinates()
+                                    }
+                                }
+
+//
+
+
+                            }
+//todo check GPS enable
+                            PERMISSION_DENIED -> {
+
+                                val requestPermissionLauncher = registerForActivityResult(
+                                    ActivityResultContracts.RequestPermission()
+                                ) {
+                                    if (ContextCompat.checkSelfPermission(
+                                            this@MainActivity,
+                                            ACCESS_COARSE_LOCATION
+                                        ) == PERMISSION_GRANTED
+                                    ) {
+//                                        getWeatherAround()
+
+
+                                    } else {
+                                        Toast.makeText(
+                                            this@MainActivity,
+                                            "Нужно разремение на локацию",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    }
+                                }
+                                requestPermissionLauncher.launch(ACCESS_COARSE_LOCATION)
                             }
                         }
                     }
@@ -110,9 +171,8 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-
-
     }
+
     override fun onDestroy() {
         super.onDestroy();
         SvgLoader.pluck().close();

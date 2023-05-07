@@ -1,11 +1,8 @@
 package com.example.testweatherappcilation
 
 import android.util.Log
-import android.widget.ImageView
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bumptech.glide.Glide
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -46,18 +43,8 @@ class WeatherViewModel : ViewModel() {
         return weatherEntity
     }
 
-    fun resetFields() {
-        _stateFlow.value.actualWeather?.geo_object?.district?.name = ""
-        _stateFlow.value.actualWeather?.geo_object?.locality?.name = ""
-
-    }
-
     fun getWeatherByCoordinates(lat: Double, lon: Double) {
         fetchData(lat, lon)
-    }
-
-    fun getConditionImage(view: ImageView) {
-
     }
 
     fun getTokyoWeather() {
