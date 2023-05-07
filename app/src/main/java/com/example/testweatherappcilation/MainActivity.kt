@@ -46,17 +46,11 @@ class MainActivity : AppCompatActivity() {
                         "${actualWeather?.geo_object?.district?.name ?: ""}, ${actualWeather?.geo_object?.locality?.name ?: ""}" //todo поравить, чтобы при нал уходила запятая
 
                     val dataTemp = actualWeather?.yesterday?.temp
-                    val formatterHours = DateTimeFormatter.ofPattern("HH")
-                    val formatterMinutes = DateTimeFormatter.ofPattern("mm")
-                    val offset = actualWeather?.info?.tzinfo?.offset?.div(360)
+                    val formatter = DateTimeFormatter.ISO_TIME
 
-                    val currentHours = LocalTime.parse(actualWeather?.now_dt?.subSequence(11,13) ?: "09", formatterHours)
-                    val currentMinutes = LocalTime.parse(actualWeather?.now_dt?.subSequence(14,16) ?: "11", formatterMinutes)
+//                    val offset = actualWeather?.info?.tzinfo?.offset?.div(360)
 
-//                    Log.i("WIIW", "${actualWeather?.now_dt?.subSequence(11,13).toString()}")
-//                    val actualTime = "${actualWeather?.now_dt?.subSequence(11,13).toString().toInt() + (offset ?: 0)}:" +
-//                            "${actualWeather?.now_dt?.subSequence(13,16)}"
-                    val actualTime = "$currentHours:$currentMinutes"
+                    val actualTime = LocalTime.parse(actualWeather?.now_dt?.subSequence(11,16) ?: "09:54", formatter) //todo добавить сдвиг на пояс
 
                     val yesterdayTemp: String =
                         if ((dataTemp != null) && (dataTemp > 0)) "+$dataTemp" else "$dataTemp"
