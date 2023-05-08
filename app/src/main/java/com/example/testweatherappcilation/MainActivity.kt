@@ -1,14 +1,17 @@
 package com.example.testweatherappcilation
 
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker.PERMISSION_DENIED
+import androidx.core.content.PermissionChecker.PERMISSION_DENIED_APP_OP
 import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -20,17 +23,48 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeFormatterBuilder
+import androidx.core.app.ActivityCompat.requestPermissions
+
+import android.content.DialogInterface
+
+
+
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+//    private lateinit var requestPermissionLauncher : ActivityResultLauncher<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        val requestPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) {
+            if (ContextCompat.checkSelfPermission(
+                    this@MainActivity,
+                    ACCESS_COARSE_LOCATION
+                ) == PERMISSION_GRANTED
+            ) {
+                Toast.makeText(
+                    this@MainActivity,
+                    "разрешение на локацию выдано",
+                    Toast.LENGTH_LONG
+                ).show()
+
+                //todo как продложить сразу в кнопку
+
+
+            } else {
+                Toast.makeText(
+                    this@MainActivity,
+                    "В доступе отказано",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -42,26 +76,27 @@ class MainActivity : AppCompatActivity() {
                 viewModel.stateFlow.collect { it ->
                     val actualWeather = it.actualWeather
 
+                    val districtName = actualWeather?.geo_object?.district?.name
+                    val localityName = actualWeather?.geo_object?.locality?.name
                     binding.textLocation.text =
-                        "${actualWeather?.geo_object?.district?.name ?: ""}, ${actualWeather?.geo_object?.locality?.name ?: ""}" //todo поравить, чтобы при нал уходила запятая
+                        if (districtName == null) "$localityName" else "$districtName, $localityName"
 
-                    val dataTemp = actualWeather?.yesterday?.temp
-                    val formatter = DateTimeFormatter.ISO_TIME
-
-//                    val offset = actualWeather?.info?.tzinfo?.offset?.div(360)
-
-                    val actualTime = LocalTime.parse(actualWeather?.now_dt?.subSequence(11,16) ?: "09:54", formatter) //todo добавить сдвиг на пояс
-
+                    val yesterdayTempData = actualWeather?.yesterday?.temp
                     val yesterdayTemp: String =
-                        if ((dataTemp != null) && (dataTemp > 0)) "+$dataTemp" else "$dataTemp"
+                        if ((yesterdayTempData != null) && (yesterdayTempData > 0)) "+$yesterdayTempData" else "$yesterdayTempData"
 
-                    val degreeSymbol = "\u00B0"
+                    val formatter = DateTimeFormatter.ISO_TIME
+//                    val offset = actualWeather?.info?.tzinfo?.offset?.div(360)
+                    val actualTime = LocalTime.parse(
+                        actualWeather?.now_dt?.subSequence(11, 16) ?: "09:54",
+                        formatter
+                    ) //todo добавить сдвиг на пояс . и провеить почеру без элвиса не работает
                     binding.textActualTimeAndYesterdayTemp.text =
-                        "Сейчас ${actualTime}. Вчера в это время $yesterdayTemp$degreeSymbol" //todo время взять из АПИ или из Форматтер даты ?
+                        "Сейчас ${actualTime}. Вчера в это время $yesterdayTemp°" //todo время взять из АПИ или из Форматтер даты ?
 
-                    val temp = actualWeather?.fact?.temp
+                    val actualTempData = actualWeather?.fact?.temp
                     val actualTemperature: String =
-                        if (temp != null && temp > 0) "+$temp$degreeSymbol" else "$temp$degreeSymbol"
+                        if (actualTempData != null && actualTempData > 0) "+$actualTempData°" else "$actualTempData°"
                     binding.textActualTemp.text = actualTemperature
 
                     //load condition image
@@ -76,12 +111,16 @@ class MainActivity : AppCompatActivity() {
                         "${actualWeather?.fact?.conditionsMap?.get(actualWeather.fact.condition)}"
                     binding.textFeelsLike.text = "Ощущается как ${actualWeather?.fact?.feels_like}"
 
+
+
+
                     binding.btnGetWeatherAround.setOnClickListener {
-                        when (ContextCompat.checkSelfPermission(
-                            this@MainActivity,
-                            ACCESS_COARSE_LOCATION
-                        )) {
-                            PERMISSION_GRANTED -> {
+                        when {
+                            ContextCompat.checkSelfPermission(
+                                this@MainActivity,
+                                ACCESS_COARSE_LOCATION
+                            ) == PackageManager.PERMISSION_GRANTED -> {
+
                                 fusedLocationClient =
                                     LocationServices.getFusedLocationProviderClient(this@MainActivity)
 
@@ -105,33 +144,18 @@ class MainActivity : AppCompatActivity() {
                                         toastWrongCoordinates()
                                     }
                                 }
+                            }
 
-//
-
+                            shouldShowRequestPermissionRationale(ACCESS_COARSE_LOCATION) -> {
+                                Toast.makeText(
+                                    this@MainActivity,
+                                    "Разрешение требуется для определения местороложения",
+                                    Toast.LENGTH_SHORT
+                                ).show()
 
                             }
 //todo check GPS enable
-                            PERMISSION_DENIED -> {
-
-                                val requestPermissionLauncher = registerForActivityResult(
-                                    ActivityResultContracts.RequestPermission()
-                                ) {
-                                    if (ContextCompat.checkSelfPermission(
-                                            this@MainActivity,
-                                            ACCESS_COARSE_LOCATION
-                                        ) == PERMISSION_GRANTED
-                                    ) {
-//                                        getWeatherAround()
-
-
-                                    } else {
-                                        Toast.makeText(
-                                            this@MainActivity,
-                                            "Нужно разремение на локацию",
-                                            Toast.LENGTH_LONG
-                                        ).show()
-                                    }
-                                }
+                            else -> {
                                 requestPermissionLauncher.launch(ACCESS_COARSE_LOCATION)
                             }
                         }
@@ -180,4 +204,9 @@ class MainActivity : AppCompatActivity() {
         )
             .show()
     }
+
+//    fun checkLocationPermission() : ActivityResultLauncher<String> {
+//
+//        return
+//    }
 }
