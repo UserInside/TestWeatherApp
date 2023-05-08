@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.IOException
 
 class WeatherViewModel : ViewModel() {
 
@@ -44,7 +45,16 @@ class WeatherViewModel : ViewModel() {
     }
 
     fun getWeatherByCoordinates(lat: Double, lon: Double) {
-        fetchData(lat, lon)
+        try {
+            if (lat in -90.0..90.0 && lon in -180.0..180.0) {
+                fetchData(lat, lon)
+            } else {
+                throw IllegalArgumentException("Wrong coordinates")
+            }
+
+        } catch (e: IllegalArgumentException) {
+            Log.e("TAG","Wrong coordinates", e)
+        }
     }
 
     fun getTokyoWeather() {

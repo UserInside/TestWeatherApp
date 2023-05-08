@@ -1,6 +1,8 @@
 package com.example.testweatherappcilation
 
-import android.Manifest.permission.ACCESS_COARSE_LOCATION
+
+import android.Manifest
+import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -8,10 +10,9 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.core.content.PermissionChecker.PERMISSION_DENIED
-import androidx.core.content.PermissionChecker.PERMISSION_DENIED_APP_OP
 import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -25,49 +26,20 @@ import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.coroutines.launch
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import androidx.core.app.ActivityCompat.requestPermissions
-
-import android.content.DialogInterface
-
-
 
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-//    private lateinit var requestPermissionLauncher : ActivityResultLauncher<String>
+    private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
-        val requestPermissionLauncher = registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) {
-            if (ContextCompat.checkSelfPermission(
-                    this@MainActivity,
-                    ACCESS_COARSE_LOCATION
-                ) == PERMISSION_GRANTED
-            ) {
-                Toast.makeText(
-                    this@MainActivity,
-                    "разрешение на локацию выдано",
-                    Toast.LENGTH_LONG
-                ).show()
-
-                //todo как продложить сразу в кнопку
-
-
-            } else {
-                Toast.makeText(
-                    this@MainActivity,
-                    "В доступе отказано",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        }
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        requestLocationPermission()
 
         val viewModel: WeatherViewModel by viewModels()
 
@@ -87,12 +59,11 @@ class MainActivity : AppCompatActivity() {
 
                     val formatter = DateTimeFormatter.ISO_TIME
 //                    val offset = actualWeather?.info?.tzinfo?.offset?.div(360)
+                    Log.e("WOW", "${actualWeather?.now_dt?.subSequence(11, 16)}")
                     val actualTime = LocalTime.parse(
-                        actualWeather?.now_dt?.subSequence(11, 16) ?: "09:54",
-                        formatter
+                        actualWeather?.now_dt?.subSequence(11, 16) ?: "09:54", formatter
                     ) //todo добавить сдвиг на пояс . и провеить почеру без элвиса не работает
-                    binding.textActualTimeAndYesterdayTemp.text =
-                        "Сейчас ${actualTime}. Вчера в это время $yesterdayTemp°" //todo время взять из АПИ или из Форматтер даты ?
+                    binding.textActualTimeAndYesterdayTemp.text = "Сейчас ${actualTime}. Вчера в это время $yesterdayTemp°"
 
                     val actualTempData = actualWeather?.fact?.temp
                     val actualTemperature: String =
@@ -112,51 +83,36 @@ class MainActivity : AppCompatActivity() {
                     binding.textFeelsLike.text = "Ощущается как ${actualWeather?.fact?.feels_like}"
 
 
-
-
                     binding.btnGetWeatherAround.setOnClickListener {
                         when {
                             ContextCompat.checkSelfPermission(
                                 this@MainActivity,
-                                ACCESS_COARSE_LOCATION
+                                Manifest.permission.ACCESS_COARSE_LOCATION
                             ) == PackageManager.PERMISSION_GRANTED -> {
 
-                                fusedLocationClient =
-                                    LocationServices.getFusedLocationProviderClient(this@MainActivity)
+                                fusedLocationClient = LocationServices.getFusedLocationProviderClient(this@MainActivity)
 
                                 fusedLocationClient.getCurrentLocation(
                                     CurrentLocationRequest.Builder().build(),
                                     CancellationTokenSource().token //todo изучить
                                 ).addOnSuccessListener { location ->
-                                    try {
                                         val lat: Double = location.latitude
                                         val lon: Double = location.longitude
 
-                                        Log.i("WIIW", "${lat}, ${lon}")
-
-                                        if (lat in -90.0..90.0 && lon in -180.0..180.0) {
-                                            viewModel.getWeatherByCoordinates(lat, lon)
-                                        } else {
-                                            toastWrongCoordinates()
-                                        }
-
-                                    } catch (e: Throwable) {
-                                        toastWrongCoordinates()
-                                    }
+                                        viewModel.getWeatherByCoordinates(lat, lon)
                                 }
                             }
 
-                            shouldShowRequestPermissionRationale(ACCESS_COARSE_LOCATION) -> {
-                                Toast.makeText(
-                                    this@MainActivity,
-                                    "Разрешение требуется для определения местороложения",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-
+                            shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION) -> {
+                                val alertMessage = "Разрешение требуется для определения местороложения"
+                                showMessageOKCancel(alertMessage) { dialog: DialogInterface, _: Int ->
+                                    requestPermissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
+                                    dialog.dismiss()
+                                }
                             }
 //todo check GPS enable
                             else -> {
-                                requestPermissionLauncher.launch(ACCESS_COARSE_LOCATION)
+                                requestPermissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
                             }
                         }
                     }
@@ -167,7 +123,7 @@ class MainActivity : AppCompatActivity() {
                             val lat: Double = binding.editLatitude.text.toString().toDouble()
                             val lon: Double = binding.editLongitude.text.toString().toDouble()
 
-                            if (lat in -90.0..90.0 && lon in -180.0..180.0) {
+                            if (lat in -90.0..90.0 && lon in -180.0..180.0) { //хотел проверку координат убрать в вьюмодель, но как тогда тосты передавать в активити?
                                 viewModel.getWeatherByCoordinates(lat, lon)
                             } else {
                                 toastWrongCoordinates()
@@ -197,16 +153,44 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun toastWrongCoordinates() {
-        Toast.makeText(
-            this@MainActivity,
-            "Wrong coordinates",
-            Toast.LENGTH_LONG
-        )
-            .show()
+        Toast.makeText(this@MainActivity, "Wrong coordinates", Toast.LENGTH_LONG).show()
     }
 
-//    fun checkLocationPermission() : ActivityResultLauncher<String> {
-//
-//        return
-//    }
+    fun requestLocationPermission() {
+        requestPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) {
+            if (ContextCompat.checkSelfPermission(
+                    this@MainActivity,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PERMISSION_GRANTED
+            ) {
+                Toast.makeText(
+                    this@MainActivity,
+                    "разрешение на локацию выдано",
+                    Toast.LENGTH_LONG
+                ).show()
+
+                //todo как продложить сразу в кнопку
+
+
+            } else {
+                Toast.makeText(
+                    this@MainActivity,
+                    "В доступе отказано",
+                    Toast.LENGTH_LONG
+                ).show()
+
+            }
+        }
+    }
+
+    private fun showMessageOKCancel(message: String, okListener: DialogInterface.OnClickListener) {
+        AlertDialog.Builder(this@MainActivity)
+            .setMessage(message)
+            .setPositiveButton("OK", okListener)
+            .setNegativeButton("Cancel", null)
+            .create()
+            .show()
+    }
 }
