@@ -1,12 +1,10 @@
 package com.example.testweatherappcilation
 
 class WeatherInteractor(
-    private val weatherGateway: WeatherGateway
+    private val weatherRepository: WeatherRepository
 ) {
 
-    private val weatherEntity : WeatherEntity? = null
-
     suspend fun fetchData() : WeatherEntity {
-        return weatherGateway.request()
+        return weatherRepository.request()
     }
 }

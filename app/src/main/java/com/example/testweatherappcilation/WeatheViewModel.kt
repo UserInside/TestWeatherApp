@@ -8,19 +8,21 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.io.IOException
 
 class WeatherViewModel : ViewModel() {
 
     private val _stateFlow =
-        MutableStateFlow(WeatherEntity(null)) //todo может аргумент другой. и можно ли тут нал ставить?
+        MutableStateFlow(WeatherEntity(null))
     val stateFlow: StateFlow<WeatherEntity> = _stateFlow.asStateFlow()
 
+    var lat: Double = 55.75396
+    var lon: Double = 37.620393
+
     init {
-        fetchData()
+        fetchData(lat, lon)
     }
 
-    private fun fetchData(lat: Double = 55.75396, lon: Double = 37.620393) {
+    private fun fetchData(lat: Double, lon: Double) {
         try {
             viewModelScope.launch {
                 val weatherEntity = getWeatherEntity(lat, lon)
@@ -38,13 +40,13 @@ class WeatherViewModel : ViewModel() {
 
     suspend fun getWeatherEntity(lat: Double, lon: Double): WeatherEntity {
         val dataHttpClient = DataHttpClient(lat, lon)
-        val weatherGateway: WeatherGateway = WeatherGatewayImplementation(dataHttpClient)
+        val weatherGateway: WeatherRepository = WeatherGatewayImplementation(dataHttpClient)
         val weatherInteractor = WeatherInteractor(weatherGateway)
         val weatherEntity = weatherInteractor.fetchData()
         return weatherEntity
     }
 
-    fun getWeatherByCoordinates(lat: Double, lon: Double) {
+    fun getWeatherByCoordinates() {
         try {
             if (lat in -90.0..90.0 && lon in -180.0..180.0) {
                 fetchData(lat, lon)
@@ -53,7 +55,7 @@ class WeatherViewModel : ViewModel() {
             }
 
         } catch (e: IllegalArgumentException) {
-            Log.e("TAG","Wrong coordinates", e)
+            Log.e("TAG", "Wrong coordinates", e)
         }
     }
 
@@ -62,13 +64,10 @@ class WeatherViewModel : ViewModel() {
     }
 
     fun getOttawaWeather() {
-        fetchData(	45.4112, -75.6981)
+        fetchData(45.4112, -75.6981)
     }
 
     fun getKigaliWeather() {
         fetchData(-1.94995, 30.0588)
     }
-
-
-
 }

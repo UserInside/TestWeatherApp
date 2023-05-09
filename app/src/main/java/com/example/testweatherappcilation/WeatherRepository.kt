@@ -1,5 +1,5 @@
 package com.example.testweatherappcilation
 
-interface WeatherGateway {
+interface WeatherRepository {
     suspend fun request() : WeatherEntity
 }

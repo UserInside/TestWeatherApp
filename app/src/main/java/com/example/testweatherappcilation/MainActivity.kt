@@ -2,19 +2,22 @@ package com.example.testweatherappcilation
 
 
 import android.Manifest
+import android.content.Context
 import android.content.DialogInterface
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.ahmadrosid.svgloader.SvgLoader
@@ -33,6 +36,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
+    private lateinit var viewModel: WeatherViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,7 +45,7 @@ class MainActivity : AppCompatActivity() {
 
         requestLocationPermission()
 
-        val viewModel: WeatherViewModel by viewModels()
+        viewModel = ViewModelProvider(this).get(WeatherViewModel::class.java)
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED) {
@@ -80,54 +84,33 @@ class MainActivity : AppCompatActivity() {
 
                     binding.textCondition.text =
                         "${actualWeather?.fact?.conditionsMap?.get(actualWeather.fact.condition)}"
-                    binding.textFeelsLike.text = "Ощущается как ${actualWeather?.fact?.feels_like}"
-
+                    binding.textFeelsLike.text = "Ощущается как ${actualWeather?.fact?.feels_like}°"
 
                     binding.btnGetWeatherAround.setOnClickListener {
-                        when {
-                            ContextCompat.checkSelfPermission(
-                                this@MainActivity,
-                                Manifest.permission.ACCESS_COARSE_LOCATION
-                            ) == PackageManager.PERMISSION_GRANTED -> {
+                        if (isGPSEnable()){
 
-                                fusedLocationClient = LocationServices.getFusedLocationProviderClient(this@MainActivity)
-
-                                fusedLocationClient.getCurrentLocation(
-                                    CurrentLocationRequest.Builder().build(),
-                                    CancellationTokenSource().token //todo изучить
-                                ).addOnSuccessListener { location ->
-                                        val lat: Double = location.latitude
-                                        val lon: Double = location.longitude
-
-                                        viewModel.getWeatherByCoordinates(lat, lon)
+                            when {
+                                ContextCompat.checkSelfPermission(this@MainActivity,
+                                    Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED -> {
+                                    getWeatherAround()
                                 }
-                            }
-
-                            shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION) -> {
-                                val alertMessage = "Разрешение требуется для определения местороложения"
-                                showMessageOKCancel(alertMessage) { dialog: DialogInterface, _: Int ->
+                                shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION) -> {
+                                    showMessageLocatonPermissionRequirement()
+                                }
+                                else -> {
                                     requestPermissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
-                                    dialog.dismiss()
                                 }
                             }
-//todo check GPS enable
-                            else -> {
-                                requestPermissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
-                            }
+                        } else {
+                            showMessageGPSRequirement()
                         }
                     }
 
-
                     binding.btnGetWeatherByCoordinates.setOnClickListener {
                         try {
-                            val lat: Double = binding.editLatitude.text.toString().toDouble()
-                            val lon: Double = binding.editLongitude.text.toString().toDouble()
-
-                            if (lat in -90.0..90.0 && lon in -180.0..180.0) { //хотел проверку координат убрать в вьюмодель, но как тогда тосты передавать в активити?
-                                viewModel.getWeatherByCoordinates(lat, lon)
-                            } else {
-                                toastWrongCoordinates()
-                            }
+                            viewModel.lat = binding.editLatitude.text.toString().toDouble()
+                            viewModel.lon = binding.editLongitude.text.toString().toDouble()
+                            viewModel.getWeatherByCoordinates()
 
                         } catch (e: Throwable) {
                             toastWrongCoordinates()
@@ -165,32 +148,61 @@ class MainActivity : AppCompatActivity() {
                     Manifest.permission.ACCESS_COARSE_LOCATION
                 ) == PERMISSION_GRANTED
             ) {
-                Toast.makeText(
-                    this@MainActivity,
-                    "разрешение на локацию выдано",
-                    Toast.LENGTH_LONG
-                ).show()
-
-                //todo как продложить сразу в кнопку
-
-
+                getWeatherAround()
             } else {
-                Toast.makeText(
-                    this@MainActivity,
-                    "В доступе отказано",
-                    Toast.LENGTH_LONG
-                ).show()
-
+                Toast.makeText(this@MainActivity, "В доступе отказано", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    private fun showMessageOKCancel(message: String, okListener: DialogInterface.OnClickListener) {
+    private fun showMessageLocatonPermissionRequirement() {
         AlertDialog.Builder(this@MainActivity)
-            .setMessage(message)
-            .setPositiveButton("OK", okListener)
+            .setMessage(getString(R.string.message_location_permission_requirement))
+            .setPositiveButton("OK") {_: DialogInterface, _: Int ->
+                requestPermissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
+            }
             .setNegativeButton("Cancel", null)
             .create()
             .show()
+    }
+
+    private fun isGPSEnable() : Boolean {
+        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            return false
+        }
+        return true
+    }
+
+    private fun showMessageGPSRequirement() {
+        AlertDialog.Builder(this@MainActivity)
+            .setMessage("Please turn ON location service (GPS)")
+            .setPositiveButton("OK") { _: DialogInterface, _: Int
+                ->
+                startActivity(Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+            }
+            .setNegativeButton("Cancel", null)
+            .create()
+            .show()
+    }
+
+    private fun getWeatherAround() {
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this@MainActivity)
+
+        if (ContextCompat.checkSelfPermission(this@MainActivity,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            fusedLocationClient.getCurrentLocation(
+                CurrentLocationRequest.Builder().build(),
+                CancellationTokenSource().token //todo изучить
+            ).addOnSuccessListener { location ->
+                viewModel.lat = location.latitude
+                viewModel.lon = location.longitude
+                viewModel.getWeatherByCoordinates()
+            }
+        }
+//        Log.i("WOW", "8")
+
     }
 }

@@ -7,14 +7,13 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.serialization.kotlinx.json.*
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 
 class WeatherGatewayImplementation(
     val dataHttpClient: DataHttpClient
-) : WeatherGateway {
+) : WeatherRepository {
 
     override suspend fun request(): WeatherEntity {
         return WeatherEntity(dataHttpClient.request())
