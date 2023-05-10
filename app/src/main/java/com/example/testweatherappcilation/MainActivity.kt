@@ -64,14 +64,16 @@ class MainActivity : AppCompatActivity() {
                     val formatter = DateTimeFormatter.ISO_TIME
 //                    val offset = actualWeather?.info?.tzinfo?.offset?.div(360)
                     Log.e("WOW", "${actualWeather?.now_dt?.subSequence(11, 16)}")
-                    val actualTime = LocalTime.parse(
-                        actualWeather?.now_dt?.subSequence(11, 16) ?: "09:54", formatter
-                    ) //todo добавить сдвиг на пояс . и провеить почеру без элвиса не работает
-                    binding.textActualTimeAndYesterdayTemp.text = "Сейчас ${actualTime}. Вчера в это время $yesterdayTemp°"
+
+                    val actualTime = actualWeather?.now_dt?.let{
+                        LocalTime.parse(it.subSequence(11, 16), formatter)
+                    }
+
+                    binding.textActualTimeAndYesterdayTemp.text = "Сейчас ${actualTime}. Вчера в это время $yesterdayTemp°"//todo добавить сдвиг на пояс
 
                     val actualTempData = actualWeather?.fact?.temp
                     val actualTemperature: String =
-                        if (actualTempData != null && actualTempData > 0) "+$actualTempData°" else "$actualTempData°"
+                        if ((actualTempData != null) && (actualTempData > 0)) "+$actualTempData°" else "$actualTempData°"
                     binding.textActualTemp.text = actualTemperature
 
                     //load condition image
