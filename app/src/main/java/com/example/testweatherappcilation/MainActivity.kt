@@ -28,7 +28,12 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.coroutines.launch
 import java.time.LocalTime
+import java.time.OffsetDateTime
+import java.time.OffsetTime
+import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeFormatterBuilder
 
 
 class MainActivity : AppCompatActivity() {
@@ -61,15 +66,15 @@ class MainActivity : AppCompatActivity() {
                     val yesterdayTemp: String =
                         if ((yesterdayTempData != null) && (yesterdayTempData > 0)) "+$yesterdayTempData" else "$yesterdayTempData"
 
-                    val formatter = DateTimeFormatter.ISO_TIME
-//                    val offset = actualWeather?.info?.tzinfo?.offset?.div(360)
-                    Log.e("WOW", "${actualWeather?.now_dt?.subSequence(11, 16)}")
+                    val offsetFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
-                    val actualTime = actualWeather?.now_dt?.let{
-                        LocalTime.parse(it.subSequence(11, 16), formatter)
+                    val offsetTime = actualWeather?.now_dt?.let {
+                        OffsetDateTime.parse(it)
+                            .atZoneSameInstant(ZoneId.systemDefault())
+                            .toLocalTime().format(offsetFormatter)
                     }
 
-                    binding.textActualTimeAndYesterdayTemp.text = "Сейчас ${actualTime}. Вчера в это время $yesterdayTemp°"//todo добавить сдвиг на пояс
+                    binding.textActualTimeAndYesterdayTemp.text = "Сейчас $offsetTime. Вчера в это время $yesterdayTemp°"//todo добавить сдвиг на пояс
 
                     val actualTempData = actualWeather?.fact?.temp
                     val actualTemperature: String =
