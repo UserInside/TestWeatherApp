@@ -1,7 +1,6 @@
 package com.example.testweatherappcilation
 
 data class WeatherEntity (
-    val actualWeather : ActualWeather?
-)
+    val weather : ActualWeather?,
+    )
 
-//todo добавить прогноз будущих дней

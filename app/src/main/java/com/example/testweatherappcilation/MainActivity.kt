@@ -8,7 +8,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -20,6 +19,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.ahmadrosid.svgloader.SvgLoader
 import com.example.testweatherappcilation.databinding.ActivityMainBinding
 import com.google.android.gms.location.CurrentLocationRequest
@@ -27,13 +28,6 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.coroutines.launch
-import java.time.LocalTime
-import java.time.OffsetDateTime
-import java.time.OffsetTime
-import java.time.ZoneId
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeFormatterBuilder
 
 
 class MainActivity : AppCompatActivity() {
@@ -55,31 +49,13 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED) {
                 viewModel.stateFlow.collect { it ->
-                    val actualWeather = it.actualWeather
+                    val actualWeather = it.weather
 
                     val districtName = actualWeather?.geo_object?.district?.name
                     val localityName = actualWeather?.geo_object?.locality?.name
-                    binding.textLocation.text =
-                        if (districtName == null) "$localityName" else "$districtName, $localityName"
-
-                    val yesterdayTempData = actualWeather?.yesterday?.temp
-                    val yesterdayTemp: String =
-                        if ((yesterdayTempData != null) && (yesterdayTempData > 0)) "+$yesterdayTempData" else "$yesterdayTempData"
-
-                    val offsetFormatter = DateTimeFormatter.ofPattern("HH:mm")
-
-                    val offsetTime = actualWeather?.now_dt?.let {
-                        OffsetDateTime.parse(it)
-                            .atZoneSameInstant(ZoneId.systemDefault())
-                            .toLocalTime().format(offsetFormatter)
-                    }
-
-                    binding.textActualTimeAndYesterdayTemp.text = "Сейчас $offsetTime. Вчера в это время $yesterdayTemp°"//todo добавить сдвиг на пояс
-
-                    val actualTempData = actualWeather?.fact?.temp
-                    val actualTemperature: String =
-                        if ((actualTempData != null) && (actualTempData > 0)) "+$actualTempData°" else "$actualTempData°"
-                    binding.textActualTemp.text = actualTemperature
+                    binding.textLocation.text = if (districtName == null) "$localityName" else "$districtName, $localityName"
+                    binding.textActualTimeAndYesterdayTemp.text = "Сейчас ${viewModel.getActualTime()}. Вчера в это время ${viewModel.getYesterdayTemp()}°"
+                    binding.textActualTemp.text = viewModel.getActualTemp()
 
                     //load condition image
                     SvgLoader.pluck()
@@ -89,13 +65,16 @@ class MainActivity : AppCompatActivity() {
                             binding.imageCondition
                         );
 
-                    binding.textCondition.text =
-                        "${actualWeather?.fact?.conditionsMap?.get(actualWeather.fact.condition)}"
+                    binding.textCondition.text = "${actualWeather?.conditions?.get(actualWeather.fact?.condition)}"
                     binding.textFeelsLike.text = "Ощущается как ${actualWeather?.fact?.feels_like}°"
+
+                    binding.wind.text = "Ветер ${actualWeather?.fact?.windDirMap?.get(actualWeather.fact.wind_dir)} ${actualWeather?.fact?.wind_speed} м/с"
+                    binding.humidity.text = "Влажность ${actualWeather?.fact?.humidity} %"
+                    binding.pressure.text = "Давление ${actualWeather?.fact?.pressure_mm} мм.рт.ст."
+
 
                     binding.btnGetWeatherAround.setOnClickListener {
                         if (isGPSEnable()){
-
                             when {
                                 ContextCompat.checkSelfPermission(this@MainActivity,
                                     Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED -> {
@@ -112,6 +91,10 @@ class MainActivity : AppCompatActivity() {
                             showMessageGPSRequirement()
                         }
                     }
+
+                    val recyclerAdapter = ForecastRecyclerViewAdapter(actualWeather, this@MainActivity)
+                    val recyclerForecasts = findViewById<RecyclerView>(R.id.recycler_forecasts)
+                    recyclerForecasts.adapter = recyclerAdapter
 
                     binding.btnGetWeatherByCoordinates.setOnClickListener {
                         try {
@@ -157,7 +140,7 @@ class MainActivity : AppCompatActivity() {
             ) {
                 getWeatherAround()
             } else {
-                Toast.makeText(this@MainActivity, "В доступе отказано", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivity, "Использование геолокации запрещено", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -187,6 +170,7 @@ class MainActivity : AppCompatActivity() {
             .setPositiveButton("OK") { _: DialogInterface, _: Int
                 ->
                 startActivity(Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                requestLocationPermission()
             }
             .setNegativeButton("Cancel", null)
             .create()
@@ -209,7 +193,5 @@ class MainActivity : AppCompatActivity() {
                 viewModel.getWeatherByCoordinates()
             }
         }
-//        Log.i("WOW", "8")
-
     }
 }

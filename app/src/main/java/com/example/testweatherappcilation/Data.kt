@@ -10,7 +10,6 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
-
 class WeatherGatewayImplementation(
     val dataHttpClient: DataHttpClient
 ) : WeatherRepository {
@@ -51,10 +50,33 @@ class DataHttpClient(
 @Serializable
 data class ActualWeather(
     val now_dt: String?,
+    val info: Info?,
     val geo_object: GeoObject?,
     val yesterday: Yesterday?,
     val fact: Fact?,
-    val info: Info?,
+    val forecasts: List<ForecastsDate>?,
+
+    val conditions: Map<String, String> = mapOf(
+        "clear" to "Ясно",
+        "partly-cloudy" to "Малооблачно",
+        "cloudy" to "Облачно с прояснениями",
+        "overcast" to "Пасмурно",
+        "drizzle" to "Морось",
+        "light-rain" to "Небольшой дождь",
+        "rain" to "Дождь",
+        "moderate-rain" to "Умеренно сильный дождь",
+        "heavy-rain" to "Сильный дождь",
+        "continuous-heavy-rain" to "Длительный сильный дождь",
+        "showers" to "Ливень",
+        "wet-snow" to "Дождь со снегом",
+        "light-snow" to "Небольшой снег",
+        "snow" to "Снег",
+        "snow-showers" to "Снегопад",
+        "hail" to "Град",
+        "thunderstorm" to "Гроза",
+        "thunderstorm-with-rain" to "Дождь с грозой",
+        "thunderstorm-with-hail" to "Гроза с градом",
+    ),
 )
 
 @Serializable
@@ -64,6 +86,7 @@ data class Info(
 
 @Serializable
 data class TzInfo(
+    val name: String?,
     val offset: Int?,
 )
 
@@ -94,8 +117,68 @@ data class Fact(
     val feels_like: Int?,
     val icon: String?,
     val condition: String?,
+    val wind_speed: Double?,
+    val wind_dir: String?,
+    val windDirMap: Map<String, String> = mapOf(
+        "nw" to "cеверо-западный",
+        "n" to "северный",
+        "ne" to "северо-восточный",
+        "e" to "восточный",
+        "se" to "юго-восточный",
+        "s" to "южный",
+        "sw" to "юго-западный",
+        "w" to "западное",
+        "c" to "штиль",
+    ),
+    val humidity: Int?,
+    val pressure_mm: Int?,
+)
 
-    val conditionsMap : Map<String, String> = mapOf(
+
+//@Serializable
+//data class Forecasts(
+//    val dates: List<ForecastsDate>,
+//)
+
+@Serializable
+data class ForecastsDate(
+    val date: String?,
+//    val sunrise: String?,
+//    val sunset: String?,
+    val parts: ForecastsDayPart?,
+//    val hours: List<ForecastsHour>,
+)
+
+@Serializable
+data class ForecastsDayPart(
+//    val morning: DayPart,
+//    val day: DayPart,
+//    val evening: DayPart,
+//    val night: DayPart,
+    val day_short: DayPart,
+    val night_short: DayPart,
+)
+
+@Serializable
+data class DayPart(
+//    val temp_min: Int?,
+//    val temp_avg: Int?,
+//    val temp_max: Int?,
+    val temp: Int?,
+    val icon: String?,
+    val condition: String?,
+)
+
+//@Serializable
+//data class ForecastsHour(
+//    val hour: String?,
+//    val temp: Int?,
+//    val condition: String,
+//)
+
+@Serializable
+data class Conditions(
+    val conditionsMap: Map<String, String> = mapOf(
         "clear" to "Ясно",
         "partly-cloudy" to "Малооблачно",
         "cloudy" to "Облачно с прояснениями",
@@ -117,38 +200,3 @@ data class Fact(
         "thunderstorm-with-hail" to "Гроза с градом",
     )
 )
-
-data class Forecasts(
-    val dates: List<ForecastDate>,
-)
-
-data class ForecastDate(
-    val date: String?,
-    val sunrise: String?,
-    val sunset: String?,
-    val parts: ForecastsDayParts?,
-    val hours: List<ForecastsHour>,
-)
-
-data class ForecastsDayParts(
-    val morning: DayPart,
-    val day: DayPart,
-    val evening: DayPart,
-    val night: DayPart,
-)
-
-data class DayPart(
-    val temp_min: Int?,
-    val temp_avg: Int?,
-    val temp_max: Int?,
-    val icon: String?,
-    val condition: String?,
-
-    )
-
-data class ForecastsHour(
-    val hour: String?,
-    val temp: Int?,
-    val condition: String,
-)
-

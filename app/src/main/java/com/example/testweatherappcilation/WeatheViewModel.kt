@@ -8,6 +8,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.OffsetDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 class WeatherViewModel : ViewModel() {
 
@@ -28,7 +31,7 @@ class WeatherViewModel : ViewModel() {
                 val weatherEntity = getWeatherEntity(lat, lon)
                 _stateFlow.update {
                     it.copy(
-                        actualWeather = weatherEntity.actualWeather
+                        weather = weatherEntity.weather
 
                     )
                 }
@@ -69,5 +72,29 @@ class WeatherViewModel : ViewModel() {
 
     fun getKigaliWeather() {
         fetchData(-1.94995, 30.0588)
+    }
+
+    fun getActualTime() : String? {
+        val offsetFormatter = DateTimeFormatter.ofPattern("HH:mm")
+        val actualTime = _stateFlow.value.weather?.now_dt?.let {
+            OffsetDateTime.parse(it)
+                .atZoneSameInstant(ZoneId.of(_stateFlow.value.weather?.info?.tzinfo?.name))
+                .toLocalTime().format(offsetFormatter)
+        }
+        return actualTime
+    }
+
+    fun getYesterdayTemp(): String {
+        val yesterdayTempData = _stateFlow.value.weather?.yesterday?.temp
+        val yesterdayTemp: String =
+            if ((yesterdayTempData != null) && (yesterdayTempData > 0)) "+$yesterdayTempData" else "$yesterdayTempData"
+        return yesterdayTemp
+    }
+
+    fun getActualTemp(): String {
+        val actualTempData = _stateFlow.value.weather?.fact?.temp
+        val actualTemperature: String =
+            if ((actualTempData != null) && (actualTempData > 0)) "+$actualTempData°" else "$actualTempData°"
+        return actualTemperature
     }
 }
