@@ -2,12 +2,21 @@
 <resources>
 
 
-    <style name="textBold" >
+    <style name="textPrimaryBold" >
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">16sp</item>
     </style>
 
-    <style name="textThin" >
+    <style name="textPrimaryThin" >
         <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="textSecondaryBold" >
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <style name="textSecondaryThin" >
+        <item name="android:textSize">13sp</item>
     </style>
 </resources>

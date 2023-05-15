@@ -1,49 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="wrap_content"
-    android:gravity="start"
-    android:orientation="vertical">
+    android:layout_width="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:elevation="3dp"
+    app:cardCornerRadius="6dp">
 
-    <TextView
-        android:id="@+id/forecasts_day"
-        style="@style/textBold"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Вт" />
+        android:gravity="start"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/forecasts_date"
-        style="@style/textThin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="14 may" />
+        <TextView
+            android:id="@+id/forecasts_day"
+            style="@style/textSecondaryBold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Вт" />
 
-    <ImageView
-        android:id="@+id/forecast_recycler_image"
-        android:layout_width="52dp"
-        android:layout_height="52dp" />
+        <TextView
+            android:id="@+id/forecasts_date"
+            style="@style/textSecondaryThin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="14 may" />
 
-    <TextView
-        android:id="@+id/forecasts_temp_day"
-        style="@style/textBold"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="+24" />
+        <ImageView
+            android:id="@+id/forecast_recycler_image"
+            android:layout_width="48dp"
+            android:layout_height="52dp" />
 
-    <TextView
-        android:id="@+id/forecasts_temp_night"
-        style="@style/textThin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="+12" />
+        <TextView
+            android:id="@+id/forecasts_temp_day"
+            style="@style/textSecondaryBold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="+24" />
 
-    <TextView
-        android:id="@+id/forecasts_condition"
-        style="@style/textThin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:text="Cloudy" />
+        <TextView
+            android:id="@+id/forecasts_temp_night"
+            style="@style/textSecondaryThin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="+12" />
 
-</LinearLayout>
+        <TextView
+            android:id="@+id/forecasts_condition"
+            style="@style/textSecondaryThin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:scrollHorizontally="false"
+            android:singleLine="false"
+            android:text="Cloudy" />
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
