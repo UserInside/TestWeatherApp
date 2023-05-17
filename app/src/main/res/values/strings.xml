@@ -7,7 +7,7 @@
     <string name="check_cities">Посмотреть города</string>
     <string name="tokyo">Токио</string>
     <string name="ottawa">Оттава</string>
-    <string name="kigali">Кигали</string>
+    <string name="abinsk">Абинск</string>
     <string name="get_weather_around">Узнать погоду вокруг меня</string>
     <string name="message_location_permission_requirement">Для отображения погоды вокруг требуется разрешение определения местороложения</string>
 </resources>

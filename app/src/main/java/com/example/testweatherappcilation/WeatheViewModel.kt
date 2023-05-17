@@ -70,8 +70,8 @@ class WeatherViewModel : ViewModel() {
         fetchData(45.4112, -75.6981)
     }
 
-    fun getKigaliWeather() {
-        fetchData(-1.94995, 30.0588)
+    fun getAbinskWeather() {
+        fetchData(44.86623764, 38.15129089)
     }
 
     fun getActualTime() : String? {

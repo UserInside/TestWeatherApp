@@ -11,14 +11,14 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        >
 
-        <androidx.cardview.widget.CardView
+        <FrameLayout
             android:id="@+id/frame_weather"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:elevation="3dp"
-            app:cardCornerRadius="6dp">
+            android:paddingBottom="12dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -30,7 +30,6 @@
                     style="@style/textPrimaryBold"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-
                     android:text="Район, город" />
 
                 <TextView
@@ -84,7 +83,7 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical" >
 
@@ -107,24 +106,25 @@
                         style="@style/textPrimaryThin"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="pressure" />
+                        android:text="pressure"
+                        android:paddingBottom="6dp"/>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="2dp"
+                        android:background="@android:color/secondary_text_light" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recycler_forecasts"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingTop="6dp"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager">
+
+                    </androidx.recyclerview.widget.RecyclerView>
                 </LinearLayout>
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler_forecasts"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager">
-
-            </androidx.recyclerview.widget.RecyclerView>
-
         </FrameLayout>
 
         <FrameLayout
@@ -207,7 +207,7 @@
                     android:id="@+id/btn_kigali"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/kigali" />
+                    android:text="@string/abinsk" />
                 </LinearLayout>
             </LinearLayout>
         </FrameLayout>

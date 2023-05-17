@@ -9,6 +9,12 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.ahmadrosid.svgloader.SvgLoader
+import okhttp3.internal.format
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
+import java.util.Locale
+
 
 class ForecastRecyclerViewAdapter(
     val actualWeather: ActualWeather?,
@@ -34,16 +40,22 @@ class ForecastRecyclerViewAdapter(
     override fun onBindViewHolder(holder: ForecastRecyclerViewHolder, position: Int) {
         val item = actualWeather?.forecasts?.get(position)
 
-        holder.textDay.text = item?.date
-        holder.textDate.text = item?.date
+        holder.textDay.text = if (position == 0) "Сегодня" else LocalDate.parse(item?.date).dayOfWeek.getDisplayName(TextStyle.SHORT, Locale("ru","RU")).replaceFirstChar { it.uppercase() }
+        holder.textDate.text = LocalDate.parse(item?.date, DateTimeFormatter.ofPattern("yyyy-MM-dd")).format(DateTimeFormatter.ofPattern("dd MMM", Locale("ru","RU"))).toString()
         SvgLoader.pluck()
             .with(mContext as Activity)
             .load(
-                "https://yastatic.net/weather/i/icons/funky/dark/${item?.parts?.day_short?.icon}.svg", //"ovc" не работает ?
+                "https://yastatic.net/weather/i/icons/funky/dark/${item?.parts?.day_short?.icon}.svg", //"ovc" не работает у яндекса ?
                 holder.imageCondition
             )
-        holder.textDayTemp.text = item?.parts?.day_short?.temp.toString()
-        holder.textNightTemp.text = item?.parts?.night_short?.temp.toString()
+
+
+        holder.textDayTemp.text = item?.parts?.day_short?.temp?.let{
+            if (it > 0) "+$it°" else "$it°"
+        }
+        holder.textNightTemp.text = item?.parts?.night_short?.temp?.let {
+            if (it > 0) "+$it°" else "$it°"
+        }
         holder.textCondition.text = actualWeather?.conditions?.get(item?.parts?.day_short?.condition)
     }
 

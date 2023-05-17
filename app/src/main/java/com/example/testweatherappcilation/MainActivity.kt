@@ -7,7 +7,9 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
+import android.opengl.Visibility
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -20,7 +22,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.ahmadrosid.svgloader.SvgLoader
 import com.example.testweatherappcilation.databinding.ActivityMainBinding
 import com.google.android.gms.location.CurrentLocationRequest
@@ -43,6 +44,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         requestLocationPermission()
+
+        binding.frameWeather.visibility =View.GONE
 
         viewModel = ViewModelProvider(this).get(WeatherViewModel::class.java)
 
@@ -78,6 +81,7 @@ class MainActivity : AppCompatActivity() {
                             when {
                                 ContextCompat.checkSelfPermission(this@MainActivity,
                                     Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED -> {
+                                    binding.frameWeather.visibility = View.VISIBLE
                                     getWeatherAround()
                                 }
                                 shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION) -> {
@@ -100,6 +104,7 @@ class MainActivity : AppCompatActivity() {
                         try {
                             viewModel.lat = binding.editLatitude.text.toString().toDouble()
                             viewModel.lon = binding.editLongitude.text.toString().toDouble()
+                            binding.frameWeather.visibility = View.VISIBLE
                             viewModel.getWeatherByCoordinates()
 
                         } catch (e: Throwable) {
@@ -107,13 +112,16 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                     binding.btnTokyo.setOnClickListener {
+                        binding.frameWeather.visibility = View.VISIBLE
                         viewModel.getTokyoWeather()
                     }
                     binding.btnOttawa.setOnClickListener {
+                        binding.frameWeather.visibility = View.VISIBLE
                         viewModel.getOttawaWeather()
                     }
                     binding.btnKigali.setOnClickListener {
-                        viewModel.getKigaliWeather()
+                        binding.frameWeather.visibility = View.VISIBLE
+                        viewModel.getAbinskWeather()
                     }
                 }
             }
