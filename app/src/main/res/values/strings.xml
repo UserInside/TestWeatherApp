@@ -10,4 +10,15 @@
     <string name="abinsk">Абинск</string>
     <string name="get_weather_around">Узнать погоду вокруг меня</string>
     <string name="message_location_permission_requirement">Для отображения погоды вокруг требуется разрешение определения местороложения</string>
+    <string name="wrong_coordinates">Неверные координаты</string>
+    <string name="location_access_denied">Использование геолокации запрещено</string>
+    <string name="button_ok">OK</string>
+    <string name="button_cancel">Cancel</string>
+    <string name="gps_turn_on">Пожалуйста, включите службу определение местоположения (GPS)</string>
+    <string name="pressure">Давление %d мм.рт.ст.</string>
+    <string name="humidity">Влажность %d %%</string>
+    <string name="wind">Ветер %1$s %2$d м/с</string>
+    <string name="feels_like">Ощущается как %d°</string>
+    <string name="actual_time_and_yesterday_temp">Сейчас %1$s Вчера в это время %2$s°</string>
+    <string name="condition_icon_link">https://yastatic.net/weather/i/icons/funky/dark/%s.svg</string>
 </resources>

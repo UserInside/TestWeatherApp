@@ -36,7 +36,7 @@ class DataHttpClient(
         }
         val response: HttpResponse =
             client.get("https://api.weather.yandex.ru/v2/forecast?lat=$lat&lon=$lon") {
-                header("X-Yandex-API-Key", "9274936d-2c16-4189-a90c-f88b5cf4a034")
+                header("X-Yandex-API-Key", "cf8d0cd5-1645-4cc1-ae25-b6846212ef08")
             }
 
         val weather: ActualWeather = response.body()
@@ -134,47 +134,24 @@ data class Fact(
     val pressure_mm: Int?,
 )
 
-
-//@Serializable
-//data class Forecasts(
-//    val dates: List<ForecastsDate>,
-//)
-
 @Serializable
 data class ForecastsDate(
     val date: String?,
-//    val sunrise: String?,
-//    val sunset: String?,
     val parts: ForecastsDayPart?,
-//    val hours: List<ForecastsHour>,
 )
 
 @Serializable
 data class ForecastsDayPart(
-//    val morning: DayPart,
-//    val day: DayPart,
-//    val evening: DayPart,
-//    val night: DayPart,
     val day_short: DayPart,
     val night_short: DayPart,
 )
 
 @Serializable
 data class DayPart(
-//    val temp_min: Int?,
-//    val temp_avg: Int?,
-//    val temp_max: Int?,
     val temp: Int?,
     val icon: String?,
     val condition: String?,
 )
-
-//@Serializable
-//data class ForecastsHour(
-//    val hour: String?,
-//    val temp: Int?,
-//    val condition: String,
-//)
 
 @Serializable
 data class Conditions(

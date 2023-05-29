@@ -7,7 +7,6 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
-import android.opengl.Visibility
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -50,81 +49,81 @@ class MainActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this).get(WeatherViewModel::class.java)
 
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.CREATED) {
-                viewModel.stateFlow.collect { it ->
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.stateFlow.collect { it -> //переименовать  в  state  полем текст локешн в котором будет текст только.
                     val actualWeather = it.weather
 
                     val districtName = actualWeather?.geo_object?.district?.name
                     val localityName = actualWeather?.geo_object?.locality?.name
                     binding.textLocation.text = if (districtName == null) "$localityName" else "$districtName, $localityName"
-                    binding.textActualTimeAndYesterdayTemp.text = "Сейчас ${viewModel.getActualTime()}. Вчера в это время ${viewModel.getYesterdayTemp()}°"
+                    binding.textActualTimeAndYesterdayTemp.text = getString(R.string.actual_time_and_yesterday_temp, viewModel.getActualTime(), viewModel.getYesterdayTemp()) //во ВМ в мапере сделать логику для
                     binding.textActualTemp.text = viewModel.getActualTemp()
 
                     //load condition image
                     SvgLoader.pluck()
                         .with(this@MainActivity)
                         .load(
-                            "https://yastatic.net/weather/i/icons/funky/dark/${actualWeather?.fact?.icon}.svg", //"ovc" не работает ?
+                            getString(R.string.condition_icon_link, actualWeather?.fact?.icon), //"ovc" не работает ?
                             binding.imageCondition
                         );
 
-                    binding.textCondition.text = "${actualWeather?.conditions?.get(actualWeather.fact?.condition)}"
-                    binding.textFeelsLike.text = "Ощущается как ${actualWeather?.fact?.feels_like}°"
+                    binding.textCondition.text = actualWeather?.conditions?.get(actualWeather.fact?.condition)
+                    binding.textFeelsLike.text = getString(R.string.feels_like, actualWeather?.fact?.feels_like)
 
-                    binding.wind.text = "Ветер ${actualWeather?.fact?.windDirMap?.get(actualWeather.fact.wind_dir)} ${actualWeather?.fact?.wind_speed} м/с"
-                    binding.humidity.text = "Влажность ${actualWeather?.fact?.humidity} %"
-                    binding.pressure.text = "Давление ${actualWeather?.fact?.pressure_mm} мм.рт.ст."
+                    binding.wind.text = getString(R.string.wind, actualWeather?.fact?.windDirMap?.get(actualWeather.fact.wind_dir), actualWeather?.fact?.wind_speed)
+                    binding.humidity.text = getString(R.string.humidity, actualWeather?.fact?.humidity)
+                    binding.pressure.text = getString(R.string.pressure, actualWeather?.fact?.pressure_mm)
 
-
-                    binding.btnGetWeatherAround.setOnClickListener {
-                        if (isGPSEnable()){
-                            when {
-                                ContextCompat.checkSelfPermission(this@MainActivity,
-                                    Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED -> {
-                                    binding.frameWeather.visibility = View.VISIBLE
-                                    getWeatherAround()
-                                }
-                                shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION) -> {
-                                    showMessageLocatonPermissionRequirement()
-                                }
-                                else -> {
-                                    requestPermissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
-                                }
-                            }
-                        } else {
-                            showMessageGPSRequirement()
-                        }
-                    }
-
-                    val recyclerAdapter = ForecastRecyclerViewAdapter(actualWeather, this@MainActivity)
+                    val recyclerAdapter = ForecastRecyclerViewAdapter(actualWeather, this@MainActivity) // создаем адаптер вверху и далее диффутилз.
                     val recyclerForecasts = findViewById<RecyclerView>(R.id.recycler_forecasts)
                     recyclerForecasts.adapter = recyclerAdapter
-
-                    binding.btnGetWeatherByCoordinates.setOnClickListener {
-                        try {
-                            viewModel.lat = binding.editLatitude.text.toString().toDouble()
-                            viewModel.lon = binding.editLongitude.text.toString().toDouble()
-                            binding.frameWeather.visibility = View.VISIBLE
-                            viewModel.getWeatherByCoordinates()
-
-                        } catch (e: Throwable) {
-                            toastWrongCoordinates()
-                        }
-                    }
-                    binding.btnTokyo.setOnClickListener {
-                        binding.frameWeather.visibility = View.VISIBLE
-                        viewModel.getTokyoWeather()
-                    }
-                    binding.btnOttawa.setOnClickListener {
-                        binding.frameWeather.visibility = View.VISIBLE
-                        viewModel.getOttawaWeather()
-                    }
-                    binding.btnKigali.setOnClickListener {
-                        binding.frameWeather.visibility = View.VISIBLE
-                        viewModel.getAbinskWeather()
-                    }
                 }
             }
+        }
+
+        binding.btnGetWeatherAround.setOnClickListener {
+            if (isGPSEnable()){
+                when {
+                    ContextCompat.checkSelfPermission(this@MainActivity,
+                        Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED -> {
+                        binding.frameWeather.visibility = View.VISIBLE
+                        getWeatherAround()
+                    }
+                    shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION) -> {
+                        showMessageLocatonPermissionRequirement()
+                    }
+                    else -> {
+                        requestPermissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
+                    }
+                }
+            } else {
+                showMessageGPSRequirement()
+            }
+        }
+
+        binding.btnGetWeatherByCoordinates.setOnClickListener {
+            try {
+                viewModel.lat = binding.editLatitude.text.toString().toDouble()
+                viewModel.lon = binding.editLongitude.text.toString().toDouble()
+                binding.frameWeather.visibility = View.VISIBLE
+                viewModel.getWeatherByCoordinates()
+
+            } catch (e: Throwable) {
+                toastWrongCoordinates()
+            }
+        }
+
+        binding.btnTokyo.setOnClickListener {
+            binding.frameWeather.visibility = View.VISIBLE
+            viewModel.getTokyoWeather()
+        }
+        binding.btnOttawa.setOnClickListener {
+            binding.frameWeather.visibility = View.VISIBLE
+            viewModel.getOttawaWeather()
+        }
+        binding.btnKigali.setOnClickListener {
+            binding.frameWeather.visibility = View.VISIBLE
+            viewModel.getAbinskWeather()
         }
     }
 
@@ -134,7 +133,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun toastWrongCoordinates() {
-        Toast.makeText(this@MainActivity, "Wrong coordinates", Toast.LENGTH_LONG).show()
+        Toast.makeText(this@MainActivity, getString(R.string.wrong_coordinates), Toast.LENGTH_LONG).show()
     }
 
     fun requestLocationPermission() {
@@ -148,7 +147,7 @@ class MainActivity : AppCompatActivity() {
             ) {
                 getWeatherAround()
             } else {
-                Toast.makeText(this@MainActivity, "Использование геолокации запрещено", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivity, getString(R.string.location_access_denied), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -156,10 +155,10 @@ class MainActivity : AppCompatActivity() {
     private fun showMessageLocatonPermissionRequirement() {
         AlertDialog.Builder(this@MainActivity)
             .setMessage(getString(R.string.message_location_permission_requirement))
-            .setPositiveButton("OK") {_: DialogInterface, _: Int ->
+            .setPositiveButton(getString(R.string.button_ok)) {_: DialogInterface, _: Int ->
                 requestPermissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(getString(R.string.button_cancel), null)
             .create()
             .show()
     }
@@ -174,13 +173,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun showMessageGPSRequirement() {
         AlertDialog.Builder(this@MainActivity)
-            .setMessage("Please turn ON location service (GPS)")
-            .setPositiveButton("OK") { _: DialogInterface, _: Int
+            .setMessage(getString(R.string.gps_turn_on))
+            .setPositiveButton(getString(R.string.button_ok)) { _: DialogInterface, _: Int
                 ->
                 startActivity(Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS))
                 requestLocationPermission()
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(getString(R.string.button_cancel), null)
             .create()
             .show()
     }
