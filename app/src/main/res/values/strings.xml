@@ -21,4 +21,23 @@
     <string name="feels_like">Ощущается как %d°</string>
     <string name="actual_time_and_yesterday_temp">Сейчас %1$s Вчера в это время %2$s°</string>
     <string name="condition_icon_link">https://yastatic.net/weather/i/icons/funky/dark/%s.svg</string>
+    <string name="clear">Ясно</string>
+    <string name="partlyCloudy">Малооблачно</string>
+    <string name="cloudy">Облачно с прояснениями</string>
+    <string name="overcast">Пасмурно</string>
+    <string name="drizzle">Морось</string>
+    <string name="lightRain">Небольшой дождь</string>
+    <string name="rain">Дождь</string>
+    <string name="moderateRain">Умеренно сильный дождь</string>
+    <string name="heavyRain">Сильный дождь</string>
+    <string name="continuousHeavyRain">Длительный сильный дождь</string>
+    <string name="showers">Ливень</string>
+    <string name="wetSnow">Дождь со снегом</string>
+    <string name="lightSnow">Небольшой снег</string>
+    <string name="snow">Снег</string>
+    <string name="snowShowers">Снегопад</string>
+    <string name="hail">Град</string>
+    <string name="thunderstorm">Гроза</string>
+    <string name="thunderstormWithRain">Дождь с грозой</string>
+    <string name="thunderstormWithHail">Гроза с градом</string>
 </resources>

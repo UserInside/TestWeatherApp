@@ -2,6 +2,7 @@ package com.example.testweatherappcilation
 
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
@@ -67,10 +68,15 @@ class MainActivity : AppCompatActivity() {
                             binding.imageCondition
                         );
 
-                    binding.textCondition.text = actualWeather?.conditions?.get(actualWeather.fact?.condition)
+//                    val str = actualWeather?.fact?.condition?.condition
+
+                    binding.textCondition.text = actualWeather?.fact?.condition?.condition?.let {
+                        getString(resources.getIdentifier(it,"string", packageName))
+                    }
+
                     binding.textFeelsLike.text = getString(R.string.feels_like, actualWeather?.fact?.feels_like)
 
-                    binding.wind.text = getString(R.string.wind, actualWeather?.fact?.windDirMap?.get(actualWeather.fact.wind_dir), actualWeather?.fact?.wind_speed)
+//                    binding.wind.text = getString(R.string.wind, actualWeather?.fact?.windDirMap?.get(actualWeather.fact.wind_dir), actualWeather?.fact?.wind_speed)
                     binding.humidity.text = getString(R.string.humidity, actualWeather?.fact?.humidity)
                     binding.pressure.text = getString(R.string.pressure, actualWeather?.fact?.pressure_mm)
 

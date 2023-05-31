@@ -7,8 +7,10 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.serialization.kotlinx.json.*
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import android.content.res.Resources
 
 class WeatherGatewayImplementation(
     val dataHttpClient: DataHttpClient
@@ -55,28 +57,7 @@ data class ActualWeather(
     val yesterday: Yesterday?,
     val fact: Fact?,
     val forecasts: List<ForecastsDate>?,
-
-    val conditions: Map<String, String> = mapOf(
-        "clear" to "Ясно",
-        "partly-cloudy" to "Малооблачно",
-        "cloudy" to "Облачно с прояснениями",
-        "overcast" to "Пасмурно",
-        "drizzle" to "Морось",
-        "light-rain" to "Небольшой дождь",
-        "rain" to "Дождь",
-        "moderate-rain" to "Умеренно сильный дождь",
-        "heavy-rain" to "Сильный дождь",
-        "continuous-heavy-rain" to "Длительный сильный дождь",
-        "showers" to "Ливень",
-        "wet-snow" to "Дождь со снегом",
-        "light-snow" to "Небольшой снег",
-        "snow" to "Снег",
-        "snow-showers" to "Снегопад",
-        "hail" to "Град",
-        "thunderstorm" to "Гроза",
-        "thunderstorm-with-rain" to "Дождь с грозой",
-        "thunderstorm-with-hail" to "Гроза с градом",
-    ),
+//    val condition: Condition,
 )
 
 @Serializable
@@ -87,7 +68,7 @@ data class Info(
 @Serializable
 data class TzInfo(
     val name: String?,
-    val offset: Int?,
+//    val offset: Int?,
 )
 
 @Serializable
@@ -116,7 +97,7 @@ data class Fact(
     val temp: Int?,
     val feels_like: Int?,
     val icon: String?,
-    val condition: String?,
+    val condition: Condition,
     val wind_speed: Double?,
     val wind_dir: String?,
     val windDirMap: Map<String, String> = mapOf(
@@ -150,30 +131,68 @@ data class ForecastsDayPart(
 data class DayPart(
     val temp: Int?,
     val icon: String?,
-    val condition: String?,
+    val condition: Condition,
 )
 
 @Serializable
-data class Conditions(
-    val conditionsMap: Map<String, String> = mapOf(
-        "clear" to "Ясно",
-        "partly-cloudy" to "Малооблачно",
-        "cloudy" to "Облачно с прояснениями",
-        "overcast" to "Пасмурно",
-        "drizzle" to "Морось",
-        "light-rain" to "Небольшой дождь",
-        "rain" to "Дождь",
-        "moderate-rain" to "Умеренно сильный дождь",
-        "heavy-rain" to "Сильный дождь",
-        "continuous-heavy-rain" to "Длительный сильный дождь",
-        "showers" to "Ливень",
-        "wet-snow" to "Дождь со снегом",
-        "light-snow" to "Небольшой снег",
-        "snow" to "Снег",
-        "snow-showers" to "Снегопад",
-        "hail" to "Град",
-        "thunderstorm" to "Гроза",
-        "thunderstorm-with-rain" to "Дождь с грозой",
-        "thunderstorm-with-hail" to "Гроза с градом",
-    )
-)
+enum class Condition(
+    val condition: String,
+) {
+    @SerialName("clear")
+    CLEAR("clear"),
+
+    @SerialName("partly-cloudy")
+    PARTLY_CLOUDY("partlyCloudy"),
+
+    @SerialName("cloudy")
+    CLOUDY("cloudy"),
+
+    @SerialName("overcast")
+    OVERCAST("overcast"),
+
+    @SerialName("drizzle")
+    DRIZZLE("drizzle"),
+
+    @SerialName("light-rain")
+    LIGHT_RAIN("lightRain"),
+
+    @SerialName("rain")
+    RAIN("rain"),
+
+    @SerialName("moderate-rain")
+    MODERATE_RAIN("moderateRain"),
+
+    @SerialName("heavy-rain")
+    HEAVY_RAIN("heavyRain"),
+
+    @SerialName("continuous-heavy-hain")
+    CONTINUOUS_HEAVY_RAIN("continuousHeavyRain"),
+
+    @SerialName("showers")
+    SHOWERS("showers"),
+
+    @SerialName("wet-snow")
+    WET_SNOW("wetSnow"),
+
+    @SerialName("light-snow")
+    LIGHT_SNOW("lightSnow"),
+
+    @SerialName("snow")
+    SNOW("snow"),
+
+    @SerialName("snow-showers")
+    SNOW_SHOWERS("snowShowers"),
+
+    @SerialName("hail")
+    HAIL("hail"),
+
+    @SerialName("thunderstorm")
+    THUNDERSTORM("thunderstorm"),
+
+    @SerialName("thunderstorm-with-rain")
+    THUNDERSTORM_WITH_RAIN("thunderstormWithRain"),
+
+    @SerialName("thunderstorm-with-hail")
+    THUNDERSTORM_WITH_HAIL("thunderstormWithHail"),
+
+}

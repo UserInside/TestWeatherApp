@@ -18,8 +18,10 @@ class WeatherViewModel : ViewModel() {
         MutableStateFlow(WeatherEntity(null))
     val stateFlow: StateFlow<WeatherEntity> = _stateFlow.asStateFlow()
 
-    var lat: Double = 55.75396
-    var lon: Double = 37.620393
+//    var lat: Double = 55.75396
+//    var lon: Double = 37.620393
+   var lat: Double = 45.4112
+    var lon: Double = -75.6981
 
     init {
         fetchData(lat, lon)

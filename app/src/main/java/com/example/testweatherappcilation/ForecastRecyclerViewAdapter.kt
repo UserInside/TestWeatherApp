@@ -1,5 +1,6 @@
 package com.example.testweatherappcilation
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.view.LayoutInflater
@@ -14,6 +15,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
+import android.content.res.Resources
 
 
 class ForecastRecyclerViewAdapter(
@@ -56,7 +58,10 @@ class ForecastRecyclerViewAdapter(
         holder.textNightTemp.text = item?.parts?.night_short?.temp?.let {
             if (it > 0) "+$it°" else "$it°"
         }
-        holder.textCondition.text = actualWeather?.conditions?.get(item?.parts?.day_short?.condition)
+        holder.textCondition.text = item?.parts?.day_short?.condition?.condition?.let {
+            mContext.getString(mContext.resources.getIdentifier(it,"string", mContext.packageName))
+
+        }
     }
 
     override fun getItemCount(): Int {
