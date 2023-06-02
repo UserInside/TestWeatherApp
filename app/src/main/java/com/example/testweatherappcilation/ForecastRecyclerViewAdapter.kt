@@ -1,6 +1,5 @@
 package com.example.testweatherappcilation
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.view.LayoutInflater
@@ -10,12 +9,10 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.ahmadrosid.svgloader.SvgLoader
-import okhttp3.internal.format
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
-import android.content.res.Resources
 
 
 class ForecastRecyclerViewAdapter(
@@ -47,18 +44,18 @@ class ForecastRecyclerViewAdapter(
         SvgLoader.pluck()
             .with(mContext as Activity)
             .load(
-                "https://yastatic.net/weather/i/icons/funky/dark/${item?.parts?.day_short?.icon}.svg", //"ovc" не работает у яндекса ?
+                "https://yastatic.net/weather/i/icons/funky/dark/${item?.parts?.dayShort?.icon}.svg", //"ovc" не работает у яндекса ?
                 holder.imageCondition
             )
 
 
-        holder.textDayTemp.text = item?.parts?.day_short?.temp?.let{
+        holder.textDayTemp.text = item?.parts?.dayShort?.temp?.let{
             if (it > 0) "+$it°" else "$it°"
         }
-        holder.textNightTemp.text = item?.parts?.night_short?.temp?.let {
+        holder.textNightTemp.text = item?.parts?.nightShort?.temp?.let {
             if (it > 0) "+$it°" else "$it°"
         }
-        holder.textCondition.text = item?.parts?.day_short?.condition?.condition?.let {
+        holder.textCondition.text = item?.parts?.dayShort?.condition?.condition?.let {
             mContext.getString(mContext.resources.getIdentifier(it,"string", mContext.packageName))
 
         }

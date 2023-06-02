@@ -10,7 +10,6 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import android.content.res.Resources
 
 class WeatherGatewayImplementation(
     val dataHttpClient: DataHttpClient
@@ -51,13 +50,14 @@ class DataHttpClient(
 
 @Serializable
 data class ActualWeather(
-    val now_dt: String?,
     val info: Info?,
-    val geo_object: GeoObject?,
     val yesterday: Yesterday?,
     val fact: Fact?,
     val forecasts: List<ForecastsDate>?,
-//    val condition: Condition,
+    @SerialName("now_dt")
+    val nowDateTime: String?,
+    @SerialName("geo_object")
+    val geoObject: GeoObject?,
 )
 
 @Serializable
@@ -68,7 +68,6 @@ data class Info(
 @Serializable
 data class TzInfo(
     val name: String?,
-//    val offset: Int?,
 )
 
 @Serializable
@@ -95,24 +94,17 @@ data class Yesterday(
 @Serializable
 data class Fact(
     val temp: Int?,
-    val feels_like: Int?,
+    @SerialName("feels_like")
+    val feelsLike: Int?,
     val icon: String?,
     val condition: Condition,
-    val wind_speed: Double?,
-    val wind_dir: String?,
-    val windDirMap: Map<String, String> = mapOf(
-        "nw" to "cеверо-западный",
-        "n" to "северный",
-        "ne" to "северо-восточный",
-        "e" to "восточный",
-        "se" to "юго-восточный",
-        "s" to "южный",
-        "sw" to "юго-западный",
-        "w" to "западное",
-        "c" to "штиль",
-    ),
+    @SerialName("wind_speed")
+    val windSpeed: Double?,
+    @SerialName("wind_dir")
+    val windDirection: String?,
     val humidity: Int?,
-    val pressure_mm: Int?,
+    @SerialName("pressure_mm")
+    val pressureMm: Int?,
 )
 
 @Serializable
@@ -123,8 +115,10 @@ data class ForecastsDate(
 
 @Serializable
 data class ForecastsDayPart(
-    val day_short: DayPart,
-    val night_short: DayPart,
+    @SerialName("day_short")
+    val dayShort: DayPart,
+    @SerialName("night_short")
+    val nightShort: DayPart,
 )
 
 @Serializable
@@ -195,4 +189,19 @@ enum class Condition(
     @SerialName("thunderstorm-with-hail")
     THUNDERSTORM_WITH_HAIL("thunderstormWithHail"),
 
+}
+
+enum class WindDirection(
+    @SerialName("wind_dir")
+    val windDirection: String?
+) {
+    NORTH_WEST("nw"),
+    NORTH("n"),
+    NORTH_EAST("ne"),
+    EAST("e"),
+    SOUTH_WEST("sw"),
+    SOUTH("s"),
+    SOUTH_EAST("se"),
+    WEST("w"),
+    CALM("c"),
 }

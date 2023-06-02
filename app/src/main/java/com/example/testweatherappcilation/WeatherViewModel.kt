@@ -68,8 +68,8 @@ class WeatherViewModel : ViewModel() {
         fetchData(35.6895, 139.692)
     }
 
-    fun getOttawaWeather() {
-        fetchData(45.4112, -75.6981)
+    fun getRostovWeather() {
+        fetchData(47.222078, 39.720358)
     }
 
     fun getAbinskWeather() {
@@ -78,7 +78,7 @@ class WeatherViewModel : ViewModel() {
 
     fun getActualTime() : String? {
         val offsetFormatter = DateTimeFormatter.ofPattern("HH:mm")
-        val actualTime = _stateFlow.value.weather?.now_dt?.let {
+        val actualTime = _stateFlow.value.weather?.nowDateTime?.let {
             OffsetDateTime.parse(it)
                 .atZoneSameInstant(ZoneId.of(_stateFlow.value.weather?.info?.tzinfo?.name))
                 .toLocalTime().format(offsetFormatter)

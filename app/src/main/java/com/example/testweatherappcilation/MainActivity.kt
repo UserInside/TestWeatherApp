@@ -2,7 +2,6 @@ package com.example.testweatherappcilation
 
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
@@ -45,7 +44,7 @@ class MainActivity : AppCompatActivity() {
 
         requestLocationPermission()
 
-        binding.frameWeather.visibility =View.GONE
+        binding.frameWeather.visibility = View.GONE
 
         viewModel = ViewModelProvider(this).get(WeatherViewModel::class.java)
 
@@ -54,33 +53,48 @@ class MainActivity : AppCompatActivity() {
                 viewModel.stateFlow.collect { it -> //переименовать  в  state  полем текст локешн в котором будет текст только.
                     val actualWeather = it.weather
 
-                    val districtName = actualWeather?.geo_object?.district?.name
-                    val localityName = actualWeather?.geo_object?.locality?.name
-                    binding.textLocation.text = if (districtName == null) "$localityName" else "$districtName, $localityName"
-                    binding.textActualTimeAndYesterdayTemp.text = getString(R.string.actual_time_and_yesterday_temp, viewModel.getActualTime(), viewModel.getYesterdayTemp()) //во ВМ в мапере сделать логику для
+                    val districtName = actualWeather?.geoObject?.district?.name
+                    val localityName = actualWeather?.geoObject?.locality?.name
+                    binding.textLocation.text =
+                        if (districtName == null) "$localityName" else "$districtName, $localityName"
+                    binding.textActualTimeAndYesterdayTemp.text = getString(
+                        R.string.actual_time_and_yesterday_temp,
+                        viewModel.getActualTime(),
+                        viewModel.getYesterdayTemp()
+                    ) //во ВМ в мапере сделать логику для
                     binding.textActualTemp.text = viewModel.getActualTemp()
 
                     //load condition image
                     SvgLoader.pluck()
                         .with(this@MainActivity)
                         .load(
-                            getString(R.string.condition_icon_link, actualWeather?.fact?.icon), //"ovc" не работает ?
+                            getString(
+                                R.string.condition_icon_link,
+                                actualWeather?.fact?.icon
+                            ), //"ovc" не работает ?
                             binding.imageCondition
                         );
 
-//                    val str = actualWeather?.fact?.condition?.condition
-
                     binding.textCondition.text = actualWeather?.fact?.condition?.condition?.let {
-                        getString(resources.getIdentifier(it,"string", packageName))
+                        getString(resources.getIdentifier(it, "string", packageName))
                     }
 
-                    binding.textFeelsLike.text = getString(R.string.feels_like, actualWeather?.fact?.feels_like)
+                    binding.textFeelsLike.text =
+                        getString(R.string.feels_like, actualWeather?.fact?.feelsLike)
 
-//                    binding.wind.text = getString(R.string.wind, actualWeather?.fact?.windDirMap?.get(actualWeather.fact.wind_dir), actualWeather?.fact?.wind_speed)
-                    binding.humidity.text = getString(R.string.humidity, actualWeather?.fact?.humidity)
-                    binding.pressure.text = getString(R.string.pressure, actualWeather?.fact?.pressure_mm)
+                    val windDirection = actualWeather?.fact?.windDirection?.let {
+                        getString(resources.getIdentifier(it, "string", packageName))
+                    }
+                    binding.wind.text = getString(R.string.wind, windDirection, actualWeather?.fact?.windSpeed)
+                    binding.humidity.text =
+                        getString(R.string.humidity, actualWeather?.fact?.humidity)
+                    binding.pressure.text =
+                        getString(R.string.pressure, actualWeather?.fact?.pressureMm)
 
-                    val recyclerAdapter = ForecastRecyclerViewAdapter(actualWeather, this@MainActivity) // создаем адаптер вверху и далее диффутилз.
+                    val recyclerAdapter = ForecastRecyclerViewAdapter(
+                        actualWeather,
+                        this@MainActivity
+                    ) // создаем адаптер вверху и далее диффутилз.
                     val recyclerForecasts = findViewById<RecyclerView>(R.id.recycler_forecasts)
                     recyclerForecasts.adapter = recyclerAdapter
                 }
@@ -88,16 +102,20 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.btnGetWeatherAround.setOnClickListener {
-            if (isGPSEnable()){
+            if (isGPSEnable()) {
                 when {
-                    ContextCompat.checkSelfPermission(this@MainActivity,
-                        Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED -> {
+                    ContextCompat.checkSelfPermission(
+                        this@MainActivity,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED -> {
                         binding.frameWeather.visibility = View.VISIBLE
                         getWeatherAround()
                     }
+
                     shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION) -> {
                         showMessageLocatonPermissionRequirement()
                     }
+
                     else -> {
                         requestPermissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
                     }
@@ -125,7 +143,7 @@ class MainActivity : AppCompatActivity() {
         }
         binding.btnOttawa.setOnClickListener {
             binding.frameWeather.visibility = View.VISIBLE
-            viewModel.getOttawaWeather()
+            viewModel.getRostovWeather()
         }
         binding.btnKigali.setOnClickListener {
             binding.frameWeather.visibility = View.VISIBLE
@@ -139,7 +157,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun toastWrongCoordinates() {
-        Toast.makeText(this@MainActivity, getString(R.string.wrong_coordinates), Toast.LENGTH_LONG).show()
+        Toast.makeText(this@MainActivity, getString(R.string.wrong_coordinates), Toast.LENGTH_LONG)
+            .show()
     }
 
     fun requestLocationPermission() {
@@ -153,7 +172,11 @@ class MainActivity : AppCompatActivity() {
             ) {
                 getWeatherAround()
             } else {
-                Toast.makeText(this@MainActivity, getString(R.string.location_access_denied), Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@MainActivity,
+                    getString(R.string.location_access_denied),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
@@ -161,7 +184,7 @@ class MainActivity : AppCompatActivity() {
     private fun showMessageLocatonPermissionRequirement() {
         AlertDialog.Builder(this@MainActivity)
             .setMessage(getString(R.string.message_location_permission_requirement))
-            .setPositiveButton(getString(R.string.button_ok)) {_: DialogInterface, _: Int ->
+            .setPositiveButton(getString(R.string.button_ok)) { _: DialogInterface, _: Int ->
                 requestPermissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
             }
             .setNegativeButton(getString(R.string.button_cancel), null)
@@ -169,7 +192,7 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
-    private fun isGPSEnable() : Boolean {
+    private fun isGPSEnable(): Boolean {
         val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             return false
@@ -193,7 +216,8 @@ class MainActivity : AppCompatActivity() {
     private fun getWeatherAround() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this@MainActivity)
 
-        if (ContextCompat.checkSelfPermission(this@MainActivity,
+        if (ContextCompat.checkSelfPermission(
+                this@MainActivity,
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
