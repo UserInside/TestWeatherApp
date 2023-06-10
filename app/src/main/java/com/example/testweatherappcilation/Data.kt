@@ -42,6 +42,7 @@ class DataHttpClient(
 
         val weather: ActualWeather = response.body()
 
+
         client.close()
 
         return weather

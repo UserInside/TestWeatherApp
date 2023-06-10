@@ -16,6 +16,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -29,6 +32,8 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.coroutines.launch
 
+
+private val Context.dataStore : DataStore<Preferences> by preferencesDataStore("last weather entity")
 
 class MainActivity : AppCompatActivity() {
 
@@ -44,9 +49,12 @@ class MainActivity : AppCompatActivity() {
 
         requestLocationPermission()
 
-        binding.frameWeather.visibility = View.GONE
+        binding.frameWeather.visibility = View.VISIBLE //TODO исправить видимость вьюхи
 
-        viewModel = ViewModelProvider(this).get(WeatherViewModel::class.java)
+
+        viewModel = ViewModelProvider(this, WeatherViewModelFactory(dataStore)).get(WeatherViewModel::class.java)
+//        if (viewModel.stateFlow.value.weather != null) binding.frameWeather.visibility = View.VISIBLE
+
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -54,9 +62,9 @@ class MainActivity : AppCompatActivity() {
                     val actualWeather = it.weather
 
                     val districtName = actualWeather?.geoObject?.district?.name
-                    val localityName = actualWeather?.geoObject?.locality?.name
+                    val localityName = actualWeather?.geoObject?.locality?.name ?: getString(R.string.location_not_idetified)
                     binding.textLocation.text =
-                        if (districtName == null) "$localityName" else "$districtName, $localityName"
+                        if (districtName != null) "$districtName, $localityName" else "$localityName"
                     binding.textActualTimeAndYesterdayTemp.text = getString(
                         R.string.actual_time_and_yesterday_temp,
                         viewModel.getActualTime(),

@@ -44,7 +44,7 @@ class ForecastRecyclerViewAdapter(
         SvgLoader.pluck()
             .with(mContext as Activity)
             .load(
-                "https://yastatic.net/weather/i/icons/funky/dark/${item?.parts?.dayShort?.icon}.svg", //"ovc" не работает у яндекса ?
+                "https://yastatic.net/weather/i/icons/funky/dark/${item?.parts?.dayShort?.icon}.svg",
                 holder.imageCondition
             )
 

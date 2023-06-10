@@ -1,46 +1,83 @@
 package com.example.testweatherappcilation
 
+
 import android.util.Log
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.decodeFromString
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-class WeatherViewModel : ViewModel() {
 
-    private val _stateFlow =
-        MutableStateFlow(WeatherEntity(null))
+class WeatherViewModelFactory(
+    private val dataStore: DataStore<Preferences>
+) : ViewModelProvider.Factory {
+
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        return WeatherViewModel(dataStore) as T
+    }
+}
+
+class WeatherViewModel(
+    dataStore: DataStore<Preferences>
+) : ViewModel() {
+
+    private val dataStoreRepository = DataStoreRepository(dataStore)
+
+    private val _stateFlow = MutableStateFlow(WeatherEntity(null))
     val stateFlow: StateFlow<WeatherEntity> = _stateFlow.asStateFlow()
 
-//    var lat: Double = 55.75396
-//    var lon: Double = 37.620393
-   var lat: Double = 45.4112
-    var lon: Double = -75.6981
+    var lat: Double = 0.0
+    var lon: Double = 0.0
 
     init {
-        fetchData(lat, lon)
+        Log.i("WDataStore", "1")
+        viewModelScope.launch {
+            val lastWeatherEntity = loadLasWeatherEntity()
+            Log.i("WDataStore", "$lastWeatherEntity")
+            lastWeatherEntity?.let {actualWeather ->
+                _stateFlow.update {
+                    it.copy(
+                        weather = actualWeather
+                    )
+                }
+            }
+        }
     }
 
     private fun fetchData(lat: Double, lon: Double) {
         try {
             viewModelScope.launch {
                 val weatherEntity = getWeatherEntity(lat, lon)
+                weatherEntity.weather?.let { saveLastWeatherEntity(it)
+                    Log.i("WDataStore", "data saved to store $it")}
                 _stateFlow.update {
                     it.copy(
                         weather = weatherEntity.weather
-
                     )
                 }
             }
         } catch (e: Throwable) {
             Log.e("TAG", "weather request does not work")
         }
+    }
+
+    suspend fun saveLastWeatherEntity(actualWeather: ActualWeather) {
+        dataStoreRepository.saveLastWeatherEntity(actualWeather)
+    }
+
+    suspend fun loadLasWeatherEntity() :ActualWeather? {
+        return dataStoreRepository.loadLastWeatherEntity()?.let { Json.decodeFromString<ActualWeather>(it) }
     }
 
     suspend fun getWeatherEntity(lat: Double, lon: Double): WeatherEntity {
@@ -76,7 +113,7 @@ class WeatherViewModel : ViewModel() {
         fetchData(44.86623764, 38.15129089)
     }
 
-    fun getActualTime() : String? {
+    fun getActualTime(): String? {
         val offsetFormatter = DateTimeFormatter.ofPattern("HH:mm")
         val actualTime = _stateFlow.value.weather?.nowDateTime?.let {
             OffsetDateTime.parse(it)

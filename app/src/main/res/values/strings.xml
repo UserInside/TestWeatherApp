@@ -11,6 +11,7 @@
     <string name="get_weather_around">Узнать погоду вокруг меня</string>
     <string name="message_location_permission_requirement">Для отображения погоды вокруг требуется разрешение определения местороложения</string>
     <string name="wrong_coordinates">Неверные координаты</string>
+    <string name="location_not_idetified">Локация не определена</string>
     <string name="location_access_denied">Использование геолокации запрещено</string>
     <string name="button_ok">OK</string>
     <string name="button_cancel">Cancel</string>
