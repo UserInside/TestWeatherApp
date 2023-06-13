@@ -15,7 +15,7 @@
         >
 
         <FrameLayout
-            android:id="@+id/frame_weather"
+            android:id="@+id/contentWeatherView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="12dp">
@@ -125,6 +125,16 @@
                     </androidx.recyclerview.widget.RecyclerView>
                 </LinearLayout>
             </LinearLayout>
+
+            <include
+                android:id="@+id/includeProgressLayout"
+                layout="@layout/progress_layout"
+                android:visibility="gone" />
+
+            <include
+                android:id="@+id/includeErrorLayout"
+                layout="@layout/error_layout"
+                android:visibility="gone" />
         </FrameLayout>
 
         <FrameLayout
@@ -162,7 +172,7 @@
                         android:background="@drawable/border"
                         android:hint="@string/latitude"
                         android:inputType="numberDecimal"
-                        android:textColorHint="#80000000" />
+                        />
 
                     <EditText
                         android:id="@+id/edit_longitude"
@@ -173,7 +183,7 @@
                         android:background="@drawable/border"
                         android:hint="@string/longitude"
                         android:inputType="numberDecimal"
-                        android:textColorHint="#80000000" />
+                         />
                 </LinearLayout>
 
                 <Button

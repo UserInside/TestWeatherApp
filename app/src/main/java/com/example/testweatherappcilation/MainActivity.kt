@@ -8,7 +8,10 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.Bundle
+import android.util.Log
 import android.view.View
+import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -30,10 +33,11 @@ import com.google.android.gms.location.CurrentLocationRequest
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.CancellationTokenSource
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 
-private val Context.dataStore : DataStore<Preferences> by preferencesDataStore("last weather entity")
+private val Context.dataStore: DataStore<Preferences> by preferencesDataStore("last weather entity")
 
 class MainActivity : AppCompatActivity() {
 
@@ -49,63 +53,105 @@ class MainActivity : AppCompatActivity() {
 
         requestLocationPermission()
 
-        binding.frameWeather.visibility = View.VISIBLE //TODO исправить видимость вьюхи
-
+        binding.contentWeatherView.visibility = View.GONE
 
         viewModel = ViewModelProvider(this, WeatherViewModelFactory(dataStore)).get(WeatherViewModel::class.java)
-//        if (viewModel.stateFlow.value.weather != null) binding.frameWeather.visibility = View.VISIBLE
 
+
+        val contentView = findViewById<View>(R.id.contentWeatherView)
+        val progressView = findViewById<View>(R.id.includeProgressLayout)
+        val errorView = findViewById<View>(R.id.includeErrorLayout)
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.stateFlow.collect { it -> //переименовать  в  state  полем текст локешн в котором будет текст только.
-                    val actualWeather = it.weather
+                viewModel.stateFlow
+                    .onEach { state ->
+                        when (state.contentState) {
+                            ContentState.Idle, ContentState.Loading -> {
+                                contentView.visibility = View.GONE
+                                progressView.visibility = View.VISIBLE
+                                errorView.visibility = View.GONE
+                            }
 
-                    val districtName = actualWeather?.geoObject?.district?.name
-                    val localityName = actualWeather?.geoObject?.locality?.name ?: getString(R.string.location_not_idetified)
-                    binding.textLocation.text =
-                        if (districtName != null) "$districtName, $localityName" else "$localityName"
-                    binding.textActualTimeAndYesterdayTemp.text = getString(
-                        R.string.actual_time_and_yesterday_temp,
-                        viewModel.getActualTime(),
-                        viewModel.getYesterdayTemp()
-                    ) //во ВМ в мапере сделать логику для
-                    binding.textActualTemp.text = viewModel.getActualTemp()
+                            ContentState.Error.Common, ContentState.Error.Network -> {
+                                val buttonRetry = findViewById<Button>(R.id.buttonRetry)
+                                val errorMessage = findViewById<TextView>(R.id.errorMessage)
+                                if (state.contentState == ContentState.Error.Network) {
+                                    errorMessage.text = getString(R.string.error_message_network)
+                                }
+                                buttonRetry.setOnClickListener {
+                                    viewModel.fetchData(viewModel.lat, viewModel.lon)
+                                }
 
-                    //load condition image
-                    SvgLoader.pluck()
-                        .with(this@MainActivity)
-                        .load(
-                            getString(
-                                R.string.condition_icon_link,
-                                actualWeather?.fact?.icon
-                            ), //"ovc" не работает ?
-                            binding.imageCondition
-                        );
+                                contentView.visibility = View.GONE
+                                progressView.visibility = View.GONE
+                                errorView.visibility = View.VISIBLE
 
-                    binding.textCondition.text = actualWeather?.fact?.condition?.condition?.let {
-                        getString(resources.getIdentifier(it, "string", packageName))
+                            }
+
+                            ContentState.Done -> {
+                                contentView.visibility = View.VISIBLE
+                                progressView.visibility = View.GONE
+                                errorView.visibility = View.GONE
+
+                            }
+                        }
                     }
+                    .collect { state -> //todo переименовать  в  state  полем текст локешн в котором будет текст только.
 
-                    binding.textFeelsLike.text =
-                        getString(R.string.feels_like, actualWeather?.fact?.feelsLike)
+                        val actualWeather = state.weatherEntity?.weather
+                        if (actualWeather != null) {
+                            binding.contentWeatherView.visibility = View.VISIBLE
+                        }
 
-                    val windDirection = actualWeather?.fact?.windDirection?.let {
-                        getString(resources.getIdentifier(it, "string", packageName))
+                        val districtName = actualWeather?.geoObject?.district?.name
+                        val localityName = actualWeather?.geoObject?.locality?.name
+                            ?: getString(R.string.location_not_idetified)
+                        binding.textLocation.text =
+                            if (districtName != null) "$districtName, $localityName" else "$localityName"
+                        binding.textActualTimeAndYesterdayTemp.text = getString(
+                            R.string.actual_time_and_yesterday_temp,
+                            viewModel.getActualTime(),
+                            viewModel.getYesterdayTemp()
+                        ) //во ВМ в мапере сделать логику для
+                        binding.textActualTemp.text = viewModel.getActualTemp()
+
+                        //load condition image
+                        SvgLoader.pluck()
+                            .with(this@MainActivity)
+                            .load(
+                                getString(
+                                    R.string.condition_icon_link,
+                                    actualWeather?.fact?.icon
+                                ), //"ovc" не работает ?
+                                binding.imageCondition
+                            );
+
+                        binding.textCondition.text =
+                            actualWeather?.fact?.condition?.condition?.let {
+                                getString(resources.getIdentifier(it, "string", packageName))
+                            }
+
+                        binding.textFeelsLike.text =
+                            getString(R.string.feels_like, actualWeather?.fact?.feelsLike)
+
+                        val windDirection = actualWeather?.fact?.windDirection?.let {
+                            getString(resources.getIdentifier(it, "string", packageName))
+                        }
+                        binding.wind.text =
+                            getString(R.string.wind, windDirection, actualWeather?.fact?.windSpeed)
+                        binding.humidity.text =
+                            getString(R.string.humidity, actualWeather?.fact?.humidity)
+                        binding.pressure.text =
+                            getString(R.string.pressure, actualWeather?.fact?.pressureMm)
+
+                        val recyclerAdapter = ForecastRecyclerViewAdapter(
+                            actualWeather,
+                            this@MainActivity
+                        ) // создаем адаптер вверху и далее диффутилз.
+                        val recyclerForecasts = findViewById<RecyclerView>(R.id.recycler_forecasts)
+                        recyclerForecasts.adapter = recyclerAdapter
                     }
-                    binding.wind.text = getString(R.string.wind, windDirection, actualWeather?.fact?.windSpeed)
-                    binding.humidity.text =
-                        getString(R.string.humidity, actualWeather?.fact?.humidity)
-                    binding.pressure.text =
-                        getString(R.string.pressure, actualWeather?.fact?.pressureMm)
-
-                    val recyclerAdapter = ForecastRecyclerViewAdapter(
-                        actualWeather,
-                        this@MainActivity
-                    ) // создаем адаптер вверху и далее диффутилз.
-                    val recyclerForecasts = findViewById<RecyclerView>(R.id.recycler_forecasts)
-                    recyclerForecasts.adapter = recyclerAdapter
-                }
             }
         }
 
@@ -116,7 +162,7 @@ class MainActivity : AppCompatActivity() {
                         this@MainActivity,
                         Manifest.permission.ACCESS_COARSE_LOCATION
                     ) == PackageManager.PERMISSION_GRANTED -> {
-                        binding.frameWeather.visibility = View.VISIBLE
+                        binding.contentWeatherView.visibility = View.VISIBLE
                         getWeatherAround()
                     }
 
@@ -132,29 +178,32 @@ class MainActivity : AppCompatActivity() {
                 showMessageGPSRequirement()
             }
         }
-
         binding.btnGetWeatherByCoordinates.setOnClickListener {
             try {
-                viewModel.lat = binding.editLatitude.text.toString().toDouble()
-                viewModel.lon = binding.editLongitude.text.toString().toDouble()
-                binding.frameWeather.visibility = View.VISIBLE
-                viewModel.getWeatherByCoordinates()
-
+                val lat = binding.editLatitude.text.toString().toDouble()
+                val lon = binding.editLongitude.text.toString().toDouble()
+                if (lat in -90.0..90.0 && lon in -180.0..180.0) {
+                    viewModel.lat = lat
+                    viewModel.lon = lon
+                    viewModel.getWeatherByCoordinates()
+                } else {
+                    toastWrongCoordinates()
+                }
             } catch (e: Throwable) {
                 toastWrongCoordinates()
             }
         }
-
         binding.btnTokyo.setOnClickListener {
-            binding.frameWeather.visibility = View.VISIBLE
             viewModel.getTokyoWeather()
+            binding.contentWeatherView.visibility = View.VISIBLE
+
         }
         binding.btnOttawa.setOnClickListener {
-            binding.frameWeather.visibility = View.VISIBLE
+            binding.contentWeatherView.visibility = View.VISIBLE
+
             viewModel.getRostovWeather()
         }
         binding.btnKigali.setOnClickListener {
-            binding.frameWeather.visibility = View.VISIBLE
             viewModel.getAbinskWeather()
         }
     }
