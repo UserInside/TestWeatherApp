@@ -57,20 +57,15 @@ class MainActivity : AppCompatActivity() {
 
         viewModel = ViewModelProvider(this, WeatherViewModelFactory(dataStore)).get(WeatherViewModel::class.java)
 
-
-        val contentView = findViewById<View>(R.id.contentWeatherView)
-        val progressView = findViewById<View>(R.id.includeProgressLayout)
-        val errorView = findViewById<View>(R.id.includeErrorLayout)
-
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.stateFlow
                     .onEach { state ->
                         when (state.contentState) {
                             ContentState.Idle, ContentState.Loading -> {
-                                contentView.visibility = View.GONE
-                                progressView.visibility = View.VISIBLE
-                                errorView.visibility = View.GONE
+                                binding.contentWeatherView.visibility = View.GONE
+                                binding.includeErrorLayout.root.visibility = View.GONE
+                                binding.includeProgressLayout.root.visibility = View.VISIBLE
                             }
 
                             ContentState.Error.Common, ContentState.Error.Network -> {
@@ -83,17 +78,15 @@ class MainActivity : AppCompatActivity() {
                                     viewModel.fetchData(viewModel.lat, viewModel.lon)
                                 }
 
-                                contentView.visibility = View.GONE
-                                progressView.visibility = View.GONE
-                                errorView.visibility = View.VISIBLE
-
+                                binding.contentWeatherView.visibility = View.GONE
+                                binding.includeProgressLayout.root.visibility = View.GONE
+                                binding.includeErrorLayout.root.visibility = View.VISIBLE
                             }
 
                             ContentState.Done -> {
-                                contentView.visibility = View.VISIBLE
-                                progressView.visibility = View.GONE
-                                errorView.visibility = View.GONE
-
+                                binding.contentWeatherView.visibility = View.VISIBLE
+                                binding.includeProgressLayout.root.visibility = View.GONE
+                                binding.includeErrorLayout.root.visibility = View.GONE
                             }
                         }
                     }
@@ -105,10 +98,8 @@ class MainActivity : AppCompatActivity() {
                         }
 
                         val districtName = actualWeather?.geoObject?.district?.name
-                        val localityName = actualWeather?.geoObject?.locality?.name
-                            ?: getString(R.string.location_not_idetified)
-                        binding.textLocation.text =
-                            if (districtName != null) "$districtName, $localityName" else "$localityName"
+                        val localityName = actualWeather?.geoObject?.locality?.name ?: getString(R.string.location_not_idetified)
+                        binding.textLocation.text = if (districtName != null) "$districtName, $localityName" else "$localityName"
                         binding.textActualTimeAndYesterdayTemp.text = getString(
                             R.string.actual_time_and_yesterday_temp,
                             viewModel.getActualTime(),
@@ -125,7 +116,7 @@ class MainActivity : AppCompatActivity() {
                                     actualWeather?.fact?.icon
                                 ), //"ovc" не работает ?
                                 binding.imageCondition
-                            );
+                            )
 
                         binding.textCondition.text =
                             actualWeather?.fact?.condition?.condition?.let {
@@ -195,12 +186,8 @@ class MainActivity : AppCompatActivity() {
         }
         binding.btnTokyo.setOnClickListener {
             viewModel.getTokyoWeather()
-            binding.contentWeatherView.visibility = View.VISIBLE
-
         }
         binding.btnOttawa.setOnClickListener {
-            binding.contentWeatherView.visibility = View.VISIBLE
-
             viewModel.getRostovWeather()
         }
         binding.btnKigali.setOnClickListener {

@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import io.ktor.client.network.sockets.ConnectTimeoutException
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -48,7 +49,7 @@ class WeatherViewModel(
         viewModelScope.launch {
             val lastShownWeather = loadLasWeatherEntity()
             lastShownWeather?.let { savedWeather ->
-                _stateFlow.update {state ->
+                _stateFlow.update { state ->
                     state.copy(
                         weatherEntity = WeatherEntity(savedWeather),
                         contentState = ContentState.Done
@@ -58,32 +59,36 @@ class WeatherViewModel(
         }
     }
 
+    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        _stateFlow.update { state ->
+            state.copy(
+                contentState = if (throwable is ConnectTimeoutException
+                    || throwable is ConnectException
+                    || throwable is UnknownHostException
+                    || throwable is SocketTimeoutException
+                ) ContentState.Error.Network
+                else ContentState.Error.Common
+            )
+        }
+    }
+
     fun fetchData(lat: Double, lon: Double) {
+
         this.lat = lat
         this.lon = lon
         if (_stateFlow.value.contentState == ContentState.Loading) return
 
-        _stateFlow.update { state ->
-            state.copy(contentState = ContentState.Loading) }
-        try {
-            viewModelScope.launch {
-                val weatherEntity = getWeatherEntity(lat, lon)
-                weatherEntity.weather?.let {saveLastWeatherEntity(it)}
-                _stateFlow.update { state ->
-                    state.copy(
-                        weatherEntity = weatherEntity,
-                        contentState = ContentState.Done
-                    )
-                }
-            }
-        } catch (throwable: Throwable) {
+        _stateFlow.update { state -> state.copy(contentState = ContentState.Loading)}
+        viewModelScope.launch(exceptionHandler) {
+            throw ConnectException("th")
+            val weatherEntity = getWeatherEntity(lat, lon)
+            weatherEntity.weather?.let { saveLastWeatherEntity(it) }
             _stateFlow.update { state ->
                 state.copy(
-                    contentState = if (throwable is ConnectTimeoutException
-                        || throwable is UnknownHostException
-                        || throwable is SocketTimeoutException ) ContentState.Error.Network
-                    else ContentState.Error.Common
-                ) }
+                    weatherEntity = weatherEntity,
+                    contentState = ContentState.Done
+                )
+            }
         }
     }
 
