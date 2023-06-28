@@ -1,4 +1,4 @@
-package com.example.testweatherappcilation
+package com.example.testweatherappcilation.domain
 
 class WeatherInteractor(
     private val weatherRepository: WeatherRepository

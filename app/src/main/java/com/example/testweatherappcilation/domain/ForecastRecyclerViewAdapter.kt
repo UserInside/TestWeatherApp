@@ -1,4 +1,4 @@
-package com.example.testweatherappcilation
+package com.example.testweatherappcilation.domain
 
 import android.app.Activity
 import android.content.Context
@@ -9,6 +9,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.ahmadrosid.svgloader.SvgLoader
+import com.example.testweatherappcilation.R
+import com.example.testweatherappcilation.data.ActualWeather
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
@@ -16,7 +18,7 @@ import java.util.Locale
 
 
 class ForecastRecyclerViewAdapter(
-    val actualWeather: ActualWeather?,
+    val actualWeather: WeatherEntity?,
     context: Context,
 ): RecyclerView.Adapter<ForecastRecyclerViewAdapter.ForecastRecyclerViewHolder>() {
 
@@ -37,32 +39,27 @@ class ForecastRecyclerViewAdapter(
     }
 
     override fun onBindViewHolder(holder: ForecastRecyclerViewHolder, position: Int) {
-        val item = actualWeather?.forecasts?.get(position)
+        holder.textDay.text = if (position == 0) "Сегодня" else LocalDate.parse(actualWeather?.forecastsDate?.get(position)).dayOfWeek.getDisplayName(TextStyle.SHORT, Locale("ru","RU")).replaceFirstChar { it.uppercase() }
+        holder.textDate.text = LocalDate.parse(actualWeather?.forecastsDate?.get(position), DateTimeFormatter.ofPattern("yyyy-MM-dd")).format(DateTimeFormatter.ofPattern("dd MMM", Locale("ru","RU"))).toString()
 
-        holder.textDay.text = if (position == 0) "Сегодня" else LocalDate.parse(item?.date).dayOfWeek.getDisplayName(TextStyle.SHORT, Locale("ru","RU")).replaceFirstChar { it.uppercase() }
-        holder.textDate.text = LocalDate.parse(item?.date, DateTimeFormatter.ofPattern("yyyy-MM-dd")).format(DateTimeFormatter.ofPattern("dd MMM", Locale("ru","RU"))).toString()
         SvgLoader.pluck()
             .with(mContext as Activity)
             .load(
-                "https://yastatic.net/weather/i/icons/funky/dark/${item?.parts?.dayShort?.icon}.svg",
+                "https://yastatic.net/weather/i/icons/funky/dark/${actualWeather?.forecastsIcon?.get(position)}.svg",
                 holder.imageCondition
             )
 
+        holder.textDayTemp.text = actualWeather?.forecastsTempDay?.get(position)
+            ?.let{dayTemp -> if (dayTemp > 0) "+$dayTemp°" else "$dayTemp°"}
+        holder.textNightTemp.text = actualWeather?.forecastsTempNight?.get(position)
+            ?.let {nightTemp -> if (nightTemp > 0) "+$nightTemp°" else "$nightTemp°"}
 
-        holder.textDayTemp.text = item?.parts?.dayShort?.temp?.let{
-            if (it > 0) "+$it°" else "$it°"
-        }
-        holder.textNightTemp.text = item?.parts?.nightShort?.temp?.let {
-            if (it > 0) "+$it°" else "$it°"
-        }
-        holder.textCondition.text = item?.parts?.dayShort?.condition?.condition?.let {
-            mContext.getString(mContext.resources.getIdentifier(it,"string", mContext.packageName))
+        holder.textCondition.text = mContext.getString(mContext.resources.getIdentifier(actualWeather?.forecastsCondition?.get(position),"string", mContext.packageName))
 
-        }
     }
 
     override fun getItemCount(): Int {
-        return actualWeather?.forecasts?.size ?: 0
+        return actualWeather?.forecastsDate?.size ?: 0
     }
 }
 

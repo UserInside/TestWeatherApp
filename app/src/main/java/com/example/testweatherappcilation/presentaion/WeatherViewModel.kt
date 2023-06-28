@@ -1,4 +1,4 @@
-package com.example.testweatherappcilation
+package com.example.testweatherappcilation.presentaion
 
 
 import android.util.Log
@@ -7,6 +7,13 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.testweatherappcilation.ContentState
+import com.example.testweatherappcilation.domain.DataStoreRepository
+import com.example.testweatherappcilation.domain.WeatherRepository
+import com.example.testweatherappcilation.data.DataHttpClient
+import com.example.testweatherappcilation.data.WeatherRepositoryImplementation
+import com.example.testweatherappcilation.domain.WeatherEntity
+import com.example.testweatherappcilation.domain.WeatherInteractor
 import io.ktor.client.network.sockets.ConnectTimeoutException
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -51,7 +58,7 @@ class WeatherViewModel(
             lastShownWeather?.let { savedWeather ->
                 _stateFlow.update { state ->
                     state.copy(
-                        weatherEntity = WeatherEntity(savedWeather),
+                        weatherEntity = savedWeather,
                         contentState = ContentState.Done
                     )
                 }
@@ -78,11 +85,10 @@ class WeatherViewModel(
         this.lon = lon
         if (_stateFlow.value.contentState == ContentState.Loading) return
 
-        _stateFlow.update { state -> state.copy(contentState = ContentState.Loading)}
+        _stateFlow.update { state -> state.copy(contentState = ContentState.Loading) }
         viewModelScope.launch(exceptionHandler) {
-            throw ConnectException("th")
             val weatherEntity = getWeatherEntity(lat, lon)
-            weatherEntity.weather?.let { saveLastWeatherEntity(it) }
+            saveLastWeatherEntity(weatherEntity)
             _stateFlow.update { state ->
                 state.copy(
                     weatherEntity = weatherEntity,
@@ -92,18 +98,17 @@ class WeatherViewModel(
         }
     }
 
-    suspend fun saveLastWeatherEntity(actualWeather: ActualWeather) {
-        dataStoreRepository.saveLastWeatherEntity(actualWeather)
+    suspend fun saveLastWeatherEntity(weatherEntity: WeatherEntity) {
+        dataStoreRepository.saveLastWeatherEntity(weatherEntity)
     }
 
-    suspend fun loadLasWeatherEntity(): ActualWeather? {
+    suspend fun loadLasWeatherEntity(): WeatherEntity? {
         return dataStoreRepository.loadLastWeatherEntity()
-            ?.let { Json.decodeFromString<ActualWeather>(it) }
     }
 
     suspend fun getWeatherEntity(lat: Double, lon: Double): WeatherEntity {
         val dataHttpClient = DataHttpClient(lat, lon)
-        val weatherGateway: WeatherRepository = WeatherGatewayImplementation(dataHttpClient)
+        val weatherGateway: WeatherRepository = WeatherRepositoryImplementation(dataHttpClient)
         val weatherInteractor = WeatherInteractor(weatherGateway)
         val weatherEntity = weatherInteractor.fetchData()
         return weatherEntity
@@ -131,23 +136,23 @@ class WeatherViewModel(
 
     fun getActualTime(): String? {
         val offsetFormatter = DateTimeFormatter.ofPattern("HH:mm")
-        val actualTime = _stateFlow.value.weatherEntity?.weather?.nowDateTime?.let {
+        val actualTime = _stateFlow.value.weatherEntity?.dateTime?.let {
             OffsetDateTime.parse(it)
-                .atZoneSameInstant(ZoneId.of(_stateFlow.value.weatherEntity?.weather?.info?.tzinfo?.name))
+                .atZoneSameInstant(ZoneId.of(_stateFlow.value.weatherEntity?.timeZoneName))
                 .toLocalTime().format(offsetFormatter)
         }
         return actualTime
     }
 
     fun getYesterdayTemp(): String {
-        val yesterdayTempData = _stateFlow.value.weatherEntity?.weather?.yesterday?.temp
+        val yesterdayTempData = _stateFlow.value.weatherEntity?.yesterdayTemp
         val yesterdayTemp: String =
             if ((yesterdayTempData != null) && (yesterdayTempData > 0)) "+$yesterdayTempData" else "$yesterdayTempData"
         return yesterdayTemp
     }
 
     fun getActualTemp(): String {
-        val actualTempData = _stateFlow.value.weatherEntity?.weather?.fact?.temp
+        val actualTempData = _stateFlow.value.weatherEntity?.actualTemp
         val actualTemperature: String =
             if ((actualTempData != null) && (actualTempData > 0)) "+$actualTempData°" else "$actualTempData°"
         return actualTemperature

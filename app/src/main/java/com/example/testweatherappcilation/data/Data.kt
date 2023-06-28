@@ -1,5 +1,9 @@
-package com.example.testweatherappcilation
+package com.example.testweatherappcilation.data
 
+
+
+import com.example.testweatherappcilation.domain.WeatherEntity
+import com.example.testweatherappcilation.domain.WeatherRepository
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.okhttp.*
@@ -11,12 +15,13 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
-class WeatherGatewayImplementation(
-    val dataHttpClient: DataHttpClient
+
+class WeatherRepositoryImplementation(
+    private val dataHttpClient: DataHttpClient
 ) : WeatherRepository {
 
     override suspend fun request(): WeatherEntity {
-        return WeatherEntity(dataHttpClient.request())
+        return ApiToEntityMapper.map(dataHttpClient.request())
     }
 }
 
@@ -105,7 +110,7 @@ data class Fact(
     val windDirection: String?,
     val humidity: Int?,
     @SerialName("pressure_mm")
-    val pressureMm: Int?,
+    val pressure: Int?,
 )
 
 @Serializable

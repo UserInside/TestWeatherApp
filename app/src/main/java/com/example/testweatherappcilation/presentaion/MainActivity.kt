@@ -1,4 +1,4 @@
-package com.example.testweatherappcilation
+package com.example.testweatherappcilation.presentaion
 
 
 import android.Manifest
@@ -8,7 +8,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
@@ -28,6 +27,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
 import com.ahmadrosid.svgloader.SvgLoader
+import com.example.testweatherappcilation.ContentState
+import com.example.testweatherappcilation.domain.ForecastRecyclerViewAdapter
+import com.example.testweatherappcilation.R
 import com.example.testweatherappcilation.databinding.ActivityMainBinding
 import com.google.android.gms.location.CurrentLocationRequest
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -55,7 +57,10 @@ class MainActivity : AppCompatActivity() {
 
         binding.contentWeatherView.visibility = View.GONE
 
-        viewModel = ViewModelProvider(this, WeatherViewModelFactory(dataStore)).get(WeatherViewModel::class.java)
+        viewModel = ViewModelProvider(
+            this,
+            WeatherViewModelFactory(dataStore)
+        ).get(WeatherViewModel::class.java)
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -92,14 +97,15 @@ class MainActivity : AppCompatActivity() {
                     }
                     .collect { state -> //todo переименовать  в  state  полем текст локешн в котором будет текст только.
 
-                        val actualWeather = state.weatherEntity?.weather
+                        val actualWeather = state.weatherEntity
                         if (actualWeather != null) {
                             binding.contentWeatherView.visibility = View.VISIBLE
                         }
 
-                        val districtName = actualWeather?.geoObject?.district?.name
-                        val localityName = actualWeather?.geoObject?.locality?.name ?: getString(R.string.location_not_idetified)
-                        binding.textLocation.text = if (districtName != null) "$districtName, $localityName" else "$localityName"
+                        val districtName = actualWeather?.districtName
+                        val localityName = actualWeather?.localityName ?: getString(R.string.location_not_idetified)
+                        binding.textLocation.text =
+                            if (districtName == null || districtName == "") localityName else "$districtName, $localityName"
                         binding.textActualTimeAndYesterdayTemp.text = getString(
                             R.string.actual_time_and_yesterday_temp,
                             viewModel.getActualTime(),
@@ -113,28 +119,21 @@ class MainActivity : AppCompatActivity() {
                             .load(
                                 getString(
                                     R.string.condition_icon_link,
-                                    actualWeather?.fact?.icon
+                                    actualWeather?.icon
                                 ), //"ovc" не работает ?
                                 binding.imageCondition
                             )
 
-                        binding.textCondition.text =
-                            actualWeather?.fact?.condition?.condition?.let {
-                                getString(resources.getIdentifier(it, "string", packageName))
-                            }
+                        binding.textCondition.text = actualWeather?.condition
 
                         binding.textFeelsLike.text =
-                            getString(R.string.feels_like, actualWeather?.fact?.feelsLike)
-
-                        val windDirection = actualWeather?.fact?.windDirection?.let {
-                            getString(resources.getIdentifier(it, "string", packageName))
-                        }
+                            getString(R.string.feels_like, actualWeather?.feelsLike)
                         binding.wind.text =
-                            getString(R.string.wind, windDirection, actualWeather?.fact?.windSpeed)
+                            getString(R.string.wind, actualWeather?.windDirection, actualWeather?.windSpeed)
                         binding.humidity.text =
-                            getString(R.string.humidity, actualWeather?.fact?.humidity)
+                            getString(R.string.humidity, actualWeather?.humidity)
                         binding.pressure.text =
-                            getString(R.string.pressure, actualWeather?.fact?.pressureMm)
+                            getString(R.string.pressure, actualWeather?.pressure)
 
                         val recyclerAdapter = ForecastRecyclerViewAdapter(
                             actualWeather,
