@@ -113,6 +113,7 @@ class MainActivity : AppCompatActivity() {
                         ) //во ВМ в мапере сделать логику для
                         binding.textActualTemp.text = viewModel.getActualTemp()
 
+
                         //load condition image
                         SvgLoader.pluck()
                             .with(this@MainActivity)
@@ -136,7 +137,7 @@ class MainActivity : AppCompatActivity() {
                             getString(R.string.pressure, actualWeather?.pressure)
 
                         val recyclerAdapter = ForecastRecyclerViewAdapter(
-                            actualWeather,
+                            actualWeather?.forecasts,
                             this@MainActivity
                         ) // создаем адаптер вверху и далее диффутилз.
                         val recyclerForecasts = findViewById<RecyclerView>(R.id.recycler_forecasts)

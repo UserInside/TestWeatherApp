@@ -1,5 +1,6 @@
 package com.example.testweatherappcilation.data
 
+import com.example.testweatherappcilation.domain.Forecasts
 import com.example.testweatherappcilation.domain.WeatherEntity
 
 object ApiToEntityMapper {
@@ -19,13 +20,31 @@ object ApiToEntityMapper {
             districtName = item.geoObject?.district?.name ?: "",
             localityName = item.geoObject?.locality?.name ?: "",
 
-            forecastsDate = item.forecasts?.map { it.date },
-            // todo как-то херачить листы
-            forecastsTempDay = item.forecasts?.map { it.parts?.dayShort?.temp },
-            forecastsTempNight = item.forecasts?.map { it.parts?.nightShort?.temp },
-            forecastsIcon = item.forecasts?.map { it.parts?.dayShort?.icon },
-            forecastsCondition = item.forecasts?.map { it.parts?.dayShort?.condition?.condition },
-        )
+            forecasts = mapForecasts(item)
 
+//            forecastsDate = item.forecasts?.map { it.date },
+//            forecastsTempDay = item.forecasts?.map { it.parts?.dayShort?.temp },
+//            forecastsTempNight = item.forecasts?.map { it.parts?.nightShort?.temp },
+//            forecastsIcon = item.forecasts?.map { it.parts?.dayShort?.icon },
+//            forecastsCondition = item.forecasts?.map { it.parts?.dayShort?.condition?.condition },
+
+            )
     }
+
+    fun mapForecasts(item: ActualWeather): List<Forecasts> {
+        val forecastsList = mutableListOf<Forecasts>()
+        for (i in 0..(item.forecasts?.size ?: 0)) {
+            forecastsList.add(
+                Forecasts(
+                    forecastsDate = item.forecasts?.get(i)?.date,
+                    forecastsTempDay = item.forecasts?.get(i)?.parts?.dayShort?.temp,
+                    forecastsTempNight = item.forecasts?.get(i)?.parts?.nightShort?.temp,
+                    forecastsIcon = item.forecasts?.get(i)?.parts?.dayShort?.icon,
+                    forecastsCondition = item.forecasts?.get(i)?.parts?.dayShort?.condition?.condition,
+                )
+            )
+        }
+        return forecastsList
+    }
+
 }

@@ -7,10 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.ahmadrosid.svgloader.SvgLoader
 import com.example.testweatherappcilation.R
-import com.example.testweatherappcilation.data.ActualWeather
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
@@ -18,11 +18,13 @@ import java.util.Locale
 
 
 class ForecastRecyclerViewAdapter(
-    val actualWeather: WeatherEntity?,
+    val forecasts: List<Forecasts?>?,
     context: Context,
 ): RecyclerView.Adapter<ForecastRecyclerViewAdapter.ForecastRecyclerViewHolder>() {
 
     val mContext = context
+
+    private var oldList = forecasts
 
     class ForecastRecyclerViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
         val textDay = itemView.findViewById<TextView>(R.id.forecasts_day)
@@ -39,27 +41,35 @@ class ForecastRecyclerViewAdapter(
     }
 
     override fun onBindViewHolder(holder: ForecastRecyclerViewHolder, position: Int) {
-        holder.textDay.text = if (position == 0) "Сегодня" else LocalDate.parse(actualWeather?.forecastsDate?.get(position)).dayOfWeek.getDisplayName(TextStyle.SHORT, Locale("ru","RU")).replaceFirstChar { it.uppercase() }
-        holder.textDate.text = LocalDate.parse(actualWeather?.forecastsDate?.get(position), DateTimeFormatter.ofPattern("yyyy-MM-dd")).format(DateTimeFormatter.ofPattern("dd MMM", Locale("ru","RU"))).toString()
+        val item = forecasts?.get(position)
+        holder.textDay.text = if (position == 0) "Сегодня" else LocalDate.parse(item?.forecastsDate).dayOfWeek.getDisplayName(TextStyle.SHORT, Locale("ru","RU")).replaceFirstChar { it.uppercase() }
+        holder.textDate.text = LocalDate.parse(item?.forecastsDate, DateTimeFormatter.ofPattern("yyyy-MM-dd")).format(DateTimeFormatter.ofPattern("dd MMM", Locale("ru","RU"))).toString()
 
         SvgLoader.pluck()
             .with(mContext as Activity)
             .load(
-                "https://yastatic.net/weather/i/icons/funky/dark/${actualWeather?.forecastsIcon?.get(position)}.svg",
+                "https://yastatic.net/weather/i/icons/funky/dark/${item?.forecastsIcon}.svg",
                 holder.imageCondition
             )
 
-        holder.textDayTemp.text = actualWeather?.forecastsTempDay?.get(position)
+        holder.textDayTemp.text = item?.forecastsTempDay
             ?.let{dayTemp -> if (dayTemp > 0) "+$dayTemp°" else "$dayTemp°"}
-        holder.textNightTemp.text = actualWeather?.forecastsTempNight?.get(position)
+        holder.textNightTemp.text = item?.forecastsTempNight
             ?.let {nightTemp -> if (nightTemp > 0) "+$nightTemp°" else "$nightTemp°"}
 
-        holder.textCondition.text = mContext.getString(mContext.resources.getIdentifier(actualWeather?.forecastsCondition?.get(position),"string", mContext.packageName))
+        holder.textCondition.text = mContext.getString(mContext.resources.getIdentifier(item?.forecastsCondition,"string", mContext.packageName))
 
     }
 
     override fun getItemCount(): Int {
-        return actualWeather?.forecastsDate?.size ?: 0
+        return forecasts?.size ?: 0
+    }
+
+    fun updateList(newList: List<Forecasts>){
+        val forecastDiffUtil = ForecastsDiffUtil(oldList, newList)
+        val diffResult = DiffUtil.calculateDiff(forecastDiffUtil)
+        oldList = newList
+        diffResult.dispatchUpdatesTo(this)
     }
 }
 
