@@ -74,13 +74,15 @@ class WeatherViewModel(
                     || throwable is UnknownHostException
                     || throwable is SocketTimeoutException
                 ) ContentState.Error.Network
-                else ContentState.Error.Common
+                else {
+//                    Log.e("Lolshto", "error", throwable)
+                    ContentState.Error.Common
+                }
             )
         }
     }
 
     fun fetchData(lat: Double, lon: Double) {
-
         this.lat = lat
         this.lon = lon
         if (_stateFlow.value.contentState == ContentState.Loading) return

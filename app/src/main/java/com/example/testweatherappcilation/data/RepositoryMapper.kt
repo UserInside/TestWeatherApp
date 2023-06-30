@@ -21,19 +21,12 @@ object ApiToEntityMapper {
             localityName = item.geoObject?.locality?.name ?: "",
 
             forecasts = mapForecasts(item)
-
-//            forecastsDate = item.forecasts?.map { it.date },
-//            forecastsTempDay = item.forecasts?.map { it.parts?.dayShort?.temp },
-//            forecastsTempNight = item.forecasts?.map { it.parts?.nightShort?.temp },
-//            forecastsIcon = item.forecasts?.map { it.parts?.dayShort?.icon },
-//            forecastsCondition = item.forecasts?.map { it.parts?.dayShort?.condition?.condition },
-
             )
     }
 
     fun mapForecasts(item: ActualWeather): List<Forecasts> {
         val forecastsList = mutableListOf<Forecasts>()
-        for (i in 0..(item.forecasts?.size ?: 0)) {
+        for (i in 0 until (item.forecasts?.size ?: 0)) {
             forecastsList.add(
                 Forecasts(
                     forecastsDate = item.forecasts?.get(i)?.date,

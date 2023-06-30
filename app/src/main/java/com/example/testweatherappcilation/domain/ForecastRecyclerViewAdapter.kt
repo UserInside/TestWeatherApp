@@ -42,7 +42,7 @@ class ForecastRecyclerViewAdapter(
 
     override fun onBindViewHolder(holder: ForecastRecyclerViewHolder, position: Int) {
         val item = forecasts?.get(position)
-        holder.textDay.text = if (position == 0) "Сегодня" else LocalDate.parse(item?.forecastsDate).dayOfWeek.getDisplayName(TextStyle.SHORT, Locale("ru","RU")).replaceFirstChar { it.uppercase() }
+        holder.textDay.text = if (position == 0) mContext.getString(R.string.today) else LocalDate.parse(item?.forecastsDate).dayOfWeek.getDisplayName(TextStyle.SHORT, Locale("ru","RU")).replaceFirstChar { it.uppercase() }
         holder.textDate.text = LocalDate.parse(item?.forecastsDate, DateTimeFormatter.ofPattern("yyyy-MM-dd")).format(DateTimeFormatter.ofPattern("dd MMM", Locale("ru","RU"))).toString()
 
         SvgLoader.pluck()

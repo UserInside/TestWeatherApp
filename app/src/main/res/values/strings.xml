@@ -22,6 +22,7 @@
     <string name="feels_like">Ощущается как %d°</string>
     <string name="actual_time_and_yesterday_temp">Сейчас %1$s Вчера в это время %2$s°</string>
     <string name="condition_icon_link">https://yastatic.net/weather/i/icons/funky/dark/%s.svg</string>
+    <string name="today">Сегодня</string>
 
     <string name="clear">Ясно</string>
     <string name="partlyCloudy">Малооблачно</string>

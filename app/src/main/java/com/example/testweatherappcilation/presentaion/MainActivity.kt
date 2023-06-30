@@ -2,6 +2,7 @@ package com.example.testweatherappcilation.presentaion
 
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
@@ -125,12 +126,13 @@ class MainActivity : AppCompatActivity() {
                                 binding.imageCondition
                             )
 
-                        binding.textCondition.text = actualWeather?.condition
+                        //todo написал clear или лучше как-то иначе? и где ветер тоже
+                        binding.textCondition.text = getString(resources.getIdentifier(actualWeather?.condition ?: "clear","string", packageName) )
 
                         binding.textFeelsLike.text =
                             getString(R.string.feels_like, actualWeather?.feelsLike)
                         binding.wind.text =
-                            getString(R.string.wind, actualWeather?.windDirection, actualWeather?.windSpeed)
+                            getString(R.string.wind, getString(resources.getIdentifier(actualWeather?.windDirection ?: "c","string", packageName) ) , actualWeather?.windSpeed)
                         binding.humidity.text =
                             getString(R.string.humidity, actualWeather?.humidity)
                         binding.pressure.text =

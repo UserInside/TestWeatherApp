@@ -42,7 +42,7 @@ class DataHttpClient(
         }
         val response: HttpResponse =
             client.get("https://api.weather.yandex.ru/v2/forecast?lat=$lat&lon=$lon") {
-                header("X-Yandex-API-Key", "cf8d0cd5-1645-4cc1-ae25-b6846212ef08")
+                header("X-Yandex-API-Key", "6e05f44c-894f-43b7-8f10-717121ff5267")
             }
 
         val weather: ActualWeather = response.body()
