@@ -2,6 +2,7 @@ package com.example.testweatherappcilation.data
 
 
 
+import com.example.testweatherappcilation.BuildConfig
 import com.example.testweatherappcilation.domain.WeatherEntity
 import com.example.testweatherappcilation.domain.WeatherRepository
 import io.ktor.client.*
@@ -40,9 +41,10 @@ class DataHttpClient(
                 })
             }
         }
+        val apiKey : String = BuildConfig.ApiKey
         val response: HttpResponse =
             client.get("https://api.weather.yandex.ru/v2/forecast?lat=$lat&lon=$lon") {
-                header("X-Yandex-API-Key", "6e05f44c-894f-43b7-8f10-717121ff5267")
+                header("X-Yandex-API-Key", apiKey)
             }
 
         val weather: ActualWeather = response.body()

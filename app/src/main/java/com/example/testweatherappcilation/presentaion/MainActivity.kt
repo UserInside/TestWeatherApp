@@ -126,13 +126,14 @@ class MainActivity : AppCompatActivity() {
                                 binding.imageCondition
                             )
 
-                        //todo написал clear или лучше как-то иначе? и где ветер тоже
-                        binding.textCondition.text = getString(resources.getIdentifier(actualWeather?.condition ?: "clear","string", packageName) )
-
+                        binding.textCondition.text = actualWeather?.condition?.let {
+                            getString(resources.getIdentifier(it,"string",packageName))}
                         binding.textFeelsLike.text =
                             getString(R.string.feels_like, actualWeather?.feelsLike)
-                        binding.wind.text =
-                            getString(R.string.wind, getString(resources.getIdentifier(actualWeather?.windDirection ?: "c","string", packageName) ) , actualWeather?.windSpeed)
+                        binding.wind.text = actualWeather?.windDirection?.let {
+                            getString(R.string.wind,
+                                getString(resources.getIdentifier(it,"string", packageName)),
+                                actualWeather.windSpeed)}
                         binding.humidity.text =
                             getString(R.string.humidity, actualWeather?.humidity)
                         binding.pressure.text =

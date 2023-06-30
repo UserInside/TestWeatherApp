@@ -7,11 +7,13 @@ plugins {
 
 apply plugin: 'kotlinx-serialization'
 
+
 android {
     namespace 'com.example.testweatherappcilation'
     compileSdk 33
 
     defaultConfig {
+        buildConfigField ("String", "ApiKey", TestWeatherApp_ApiKey)
         applicationId "com.example.testweatherappcilation"
         minSdk 26
         targetSdk 33
@@ -22,15 +24,20 @@ android {
     }
 
     buildTypes {
+
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+//            buildConfigField 'String', "ApiKey", TestWeatherApp_ApiKey
+//            resValue 'string', "api_key", TestWeatherApp_ApiKey
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
     kotlinOptions {
         jvmTarget = '1.8'
     }
@@ -38,6 +45,7 @@ android {
     buildFeatures {
         viewBinding = true
     }
+
     buildToolsVersion '33.0.2'
 }
 
