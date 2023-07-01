@@ -82,7 +82,7 @@ class WeatherViewModel(
         }
     }
 
-    fun fetchData(lat: Double, lon: Double) {
+    fun fetchData(lat: Double = this.lat, lon: Double = this.lon) {
         this.lat = lat
         this.lon = lon
         if (_stateFlow.value.contentState == ContentState.Loading) return

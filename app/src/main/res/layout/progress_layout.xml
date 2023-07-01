@@ -11,6 +11,8 @@
         android:layout_height="128dp"
         android:indeterminate="true"
         android:indeterminateBehavior="cycle"
+android:indeterminateTint="@color/purple_200"
+        android:indeterminateTintMode="src_atop"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

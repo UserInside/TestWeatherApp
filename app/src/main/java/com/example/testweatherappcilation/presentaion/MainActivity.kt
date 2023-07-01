@@ -27,6 +27,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.ahmadrosid.svgloader.SvgLoader
 import com.example.testweatherappcilation.ContentState
 import com.example.testweatherappcilation.domain.ForecastRecyclerViewAdapter
@@ -145,6 +146,8 @@ class MainActivity : AppCompatActivity() {
                         ) // создаем адаптер вверху и далее диффутилз.
                         val recyclerForecasts = findViewById<RecyclerView>(R.id.recycler_forecasts)
                         recyclerForecasts.adapter = recyclerAdapter
+
+
                     }
             }
         }
@@ -196,6 +199,14 @@ class MainActivity : AppCompatActivity() {
         binding.btnKigali.setOnClickListener {
             viewModel.getAbinskWeather()
         }
+
+        val swipeRefresh = findViewById<SwipeRefreshLayout>(R.id.swipeRefresh)
+        swipeRefresh.setColorSchemeColors(getColor(R.color.purple_700))
+        swipeRefresh.setOnRefreshListener{
+            viewModel.fetchData()
+            swipeRefresh.isRefreshing = false
+        }
+
     }
 
     override fun onDestroy() {

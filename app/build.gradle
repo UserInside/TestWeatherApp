@@ -51,8 +51,7 @@ android {
 
 
 dependencies {
-    def lifecycle_version = "2.3.0"
-    def activity_version = "1.7.1"
+
     def ktor_version="2.3.0"
     implementation("io.ktor:ktor-client-core:$ktor_version")
     implementation("io.ktor:ktor-client-cio:$ktor_version")
@@ -60,14 +59,12 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:$ktor_version")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
-    implementation "androidx.activity:activity-ktx:$activity_version"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1"
+    implementation "androidx.activity:activity-ktx:1.7.2"
     implementation "com.google.android.gms:play-services-location:21.0.1"
 
-//    implementation("io.ktor:ktor-server-content-negotiation:$ktor_version")
-
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
-    implementation 'androidx.core:core-ktx:1.10.0'
+    implementation 'androidx.core:core-ktx:1.10.1'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.9.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
@@ -80,4 +77,6 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation("androidx.datastore:datastore-preferences-core:1.0.0")
 
+    //SwipeRefreshlayout
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
 }
