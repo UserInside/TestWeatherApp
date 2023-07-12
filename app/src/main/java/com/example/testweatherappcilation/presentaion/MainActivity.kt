@@ -2,7 +2,6 @@ package com.example.testweatherappcilation.presentaion
 
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
@@ -76,18 +75,19 @@ class MainActivity : AppCompatActivity() {
                             }
 
                             ContentState.Error.Common, ContentState.Error.Network -> {
+                                binding.contentWeatherView.visibility = View.GONE
+                                binding.includeProgressLayout.root.visibility = View.GONE
+                                binding.includeErrorLayout.root.visibility = View.VISIBLE
+
                                 val buttonRetry = findViewById<Button>(R.id.buttonRetry)
+                                buttonRetry.setOnClickListener {
+                                    viewModel.fetchData()
+                                }
+
                                 val errorMessage = findViewById<TextView>(R.id.errorMessage)
                                 if (state.contentState == ContentState.Error.Network) {
                                     errorMessage.text = getString(R.string.error_message_network)
                                 }
-                                buttonRetry.setOnClickListener {
-                                    viewModel.fetchData(viewModel.lat, viewModel.lon)
-                                }
-
-                                binding.contentWeatherView.visibility = View.GONE
-                                binding.includeProgressLayout.root.visibility = View.GONE
-                                binding.includeErrorLayout.root.visibility = View.VISIBLE
                             }
 
                             ContentState.Done -> {
@@ -105,36 +105,40 @@ class MainActivity : AppCompatActivity() {
                         }
 
                         val districtName = actualWeather?.districtName
-                        val localityName = actualWeather?.localityName ?: getString(R.string.location_not_idetified)
+                        val localityName = actualWeather?.localityName
+                            ?: getString(R.string.location_not_idetified)
                         binding.textLocation.text =
                             if (districtName == null || districtName == "") localityName else "$districtName, $localityName"
                         binding.textActualTimeAndYesterdayTemp.text = getString(
                             R.string.actual_time_and_yesterday_temp,
                             viewModel.getActualTime(),
                             viewModel.getYesterdayTemp()
-                        ) //во ВМ в мапере сделать логику для
+                        )
+                        // todo во ВМ в мапере сделать логику для
                         binding.textActualTemp.text = viewModel.getActualTemp()
 
-
-                        //load condition image
                         SvgLoader.pluck()
                             .with(this@MainActivity)
                             .load(
                                 getString(
                                     R.string.condition_icon_link,
                                     actualWeather?.icon
-                                ), //"ovc" не работает ?
+                                ),
                                 binding.imageCondition
                             )
 
                         binding.textCondition.text = actualWeather?.condition?.let {
-                            getString(resources.getIdentifier(it,"string",packageName))}
+                            getString(resources.getIdentifier(it, "string", packageName))
+                        }
                         binding.textFeelsLike.text =
                             getString(R.string.feels_like, actualWeather?.feelsLike)
                         binding.wind.text = actualWeather?.windDirection?.let {
-                            getString(R.string.wind,
-                                getString(resources.getIdentifier(it,"string", packageName)),
-                                actualWeather.windSpeed)}
+                            getString(
+                                R.string.wind,
+                                getString(resources.getIdentifier(it, "string", packageName)),
+                                actualWeather.windSpeed
+                            )
+                        }
                         binding.humidity.text =
                             getString(R.string.humidity, actualWeather?.humidity)
                         binding.pressure.text =
@@ -143,10 +147,9 @@ class MainActivity : AppCompatActivity() {
                         val recyclerAdapter = ForecastRecyclerViewAdapter(
                             actualWeather?.forecasts,
                             this@MainActivity
-                        ) // создаем адаптер вверху и далее диффутилз.
+                        ) // todo создаем адаптер вверху и далее диффутилз.
                         val recyclerForecasts = findViewById<RecyclerView>(R.id.recycler_forecasts)
                         recyclerForecasts.adapter = recyclerAdapter
-
 
                     }
             }
@@ -193,20 +196,19 @@ class MainActivity : AppCompatActivity() {
         binding.btnTokyo.setOnClickListener {
             viewModel.getTokyoWeather()
         }
-        binding.btnOttawa.setOnClickListener {
+        binding.btnRostov.setOnClickListener {
             viewModel.getRostovWeather()
         }
-        binding.btnKigali.setOnClickListener {
+        binding.btnAbinsk.setOnClickListener {
             viewModel.getAbinskWeather()
         }
 
         val swipeRefresh = findViewById<SwipeRefreshLayout>(R.id.swipeRefresh)
         swipeRefresh.setColorSchemeColors(getColor(R.color.purple_700))
-        swipeRefresh.setOnRefreshListener{
+        swipeRefresh.setOnRefreshListener {
             viewModel.fetchData()
             swipeRefresh.isRefreshing = false
         }
-
     }
 
     override fun onDestroy() {
@@ -281,7 +283,7 @@ class MainActivity : AppCompatActivity() {
         ) {
             fusedLocationClient.getCurrentLocation(
                 CurrentLocationRequest.Builder().build(),
-                CancellationTokenSource().token //todo изучить
+                CancellationTokenSource().token
             ).addOnSuccessListener { location ->
                 viewModel.lat = location.latitude
                 viewModel.lon = location.longitude

@@ -75,7 +75,6 @@ class WeatherViewModel(
                     || throwable is SocketTimeoutException
                 ) ContentState.Error.Network
                 else {
-//                    Log.e("Lolshto", "error", throwable)
                     ContentState.Error.Common
                 }
             )
@@ -136,28 +135,8 @@ class WeatherViewModel(
         fetchData(44.86623764, 38.15129089)
     }
 
-    fun getActualTime(): String? {
-        val offsetFormatter = DateTimeFormatter.ofPattern("HH:mm")
-        val actualTime = _stateFlow.value.weatherEntity?.dateTime?.let {
-            OffsetDateTime.parse(it)
-                .atZoneSameInstant(ZoneId.of(_stateFlow.value.weatherEntity?.timeZoneName))
-                .toLocalTime().format(offsetFormatter)
-        }
-        return actualTime
-    }
 
-    fun getYesterdayTemp(): String {
-        val yesterdayTempData = _stateFlow.value.weatherEntity?.yesterdayTemp
-        val yesterdayTemp: String =
-            if ((yesterdayTempData != null) && (yesterdayTempData > 0)) "+$yesterdayTempData" else "$yesterdayTempData"
-        return yesterdayTemp
-    }
 
-    fun getActualTemp(): String {
-        val actualTempData = _stateFlow.value.weatherEntity?.actualTemp
-        val actualTemperature: String =
-            if ((actualTempData != null) && (actualTempData > 0)) "+$actualTempData°" else "$actualTempData°"
-        return actualTemperature
-    }
+
 }
 

@@ -213,14 +213,14 @@
                                 android:text="@string/tokyo" />
 
                             <Button
-                                android:id="@+id/btn_ottawa"
+                                android:id="@+id/btn_rostov"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginHorizontal="15dp"
                                 android:text="@string/rostov" />
 
                             <Button
-                                android:id="@+id/btn_kigali"
+                                android:id="@+id/btn_abinsk"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/abinsk" />

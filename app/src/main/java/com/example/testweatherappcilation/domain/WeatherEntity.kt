@@ -10,7 +10,7 @@ data class WeatherEntity(
     val actualTemp: Int?,
     val feelsLike: Int?,
     val icon: String?,
-    val condition: String?,
+    val condition: WeatherCondition?,
     val windSpeed: Double?,
     val windDirection: String?,
     val humidity: Int?,

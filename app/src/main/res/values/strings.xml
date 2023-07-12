@@ -43,6 +43,7 @@
     <string name="thunderstorm">Гроза</string>
     <string name="thunderstormWithRain">Дождь с грозой</string>
     <string name="thunderstormWithHail">Гроза с градом</string>
+    <string name="undefined">Не определено</string>
 
     <string name="nw">cеверо-западный</string>
     <string name="n">северный</string>
@@ -51,7 +52,7 @@
     <string name="sw">юго-западный</string>
     <string name="s">южный</string>
     <string name="se">юго-восточный</string>
-    <string name="w">западное</string>
+    <string name="w">западный</string>
     <string name="c">штиль</string>
     <string name="something_went_wrong">Что-то пошло не так</string>
     <string name="retry">Повторить</string>

@@ -57,7 +57,9 @@ class ForecastRecyclerViewAdapter(
         holder.textNightTemp.text = item?.forecastsTempNight
             ?.let {nightTemp -> if (nightTemp > 0) "+$nightTemp°" else "$nightTemp°"}
 
-        holder.textCondition.text = mContext.getString(mContext.resources.getIdentifier(item?.forecastsCondition,"string", mContext.packageName))
+        holder.textCondition.text = item?.forecastsCondition?.let{
+            mContext.getString(mContext.resources.getIdentifier(it,"string", mContext.packageName))
+        }
 
     }
 
