@@ -1,6 +1,5 @@
 package com.example.testweatherappcilation.domain
 
-import android.view.inspector.InspectionCompanion
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -12,7 +11,7 @@ data class WeatherEntity(
     val icon: String?,
     val condition: WeatherCondition?,
     val windSpeed: Double?,
-    val windDirection: String?,
+    val windDirection: WindDirection?,
     val humidity: Int?,
     val pressure: Int?,
     val dateTime: String?,
@@ -20,7 +19,6 @@ data class WeatherEntity(
     val localityName: String?,
 
     val forecasts: List<Forecasts?>?,
-
     )
 
 @Serializable

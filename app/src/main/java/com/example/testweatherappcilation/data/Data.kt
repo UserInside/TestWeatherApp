@@ -27,8 +27,8 @@ class WeatherRepositoryImplementation(
 }
 
 class DataHttpClient(
-    val lat: Double = 55.75396,
-    val lon: Double = 37.620393,
+    var lat: Double = 55.75396,
+    var lon: Double = 37.620393,
 ) {
 
     suspend fun request(): ActualWeather {
@@ -199,7 +199,7 @@ enum class Condition(
 
 }
 
-enum class WindDirection(
+enum class WindDirectionData(
     @SerialName("wind_dir")
     val windDirection: String?
 ) {

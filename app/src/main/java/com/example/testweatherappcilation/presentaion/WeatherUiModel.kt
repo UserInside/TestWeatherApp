@@ -1,8 +1,9 @@
 package com.example.testweatherappcilation.presentaion
 
-import com.example.testweatherappcilation.domain.WeatherCondition
+import kotlinx.serialization.Serializable
 
-data class WeatherUiRenderState(
+
+data class WeatherUiModel(
     val textLocation: String? = null,
     val textActualTimeAndYesterdayTemp: String? = null,
     val textActualTemp: String? = null,
@@ -13,11 +14,20 @@ data class WeatherUiRenderState(
     val textHumidity: String? = null,
     val textPressure: String? = null,
 
-
     val dateTime: String? = null,
     val districtName: String? = null,
     val localityName: String? = null,
-) {
+
+    val forecasts: List<WeatherUiModelForecasts?>? = null
 
 
-}
+)
+
+@Serializable
+data class WeatherUiModelForecasts(
+    val forecastsDate: String?,
+    val forecastsTempDay: Int?,
+    val forecastsTempNight: Int?,
+    val forecastsIcon: String?,
+    val forecastsCondition: String?,
+)

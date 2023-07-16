@@ -29,14 +29,16 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.ahmadrosid.svgloader.SvgLoader
 import com.example.testweatherappcilation.ContentState
-import com.example.testweatherappcilation.domain.ForecastRecyclerViewAdapter
 import com.example.testweatherappcilation.R
+import com.example.testweatherappcilation.data.DataHttpClient
+import com.example.testweatherappcilation.data.WeatherRepositoryImplementation
 import com.example.testweatherappcilation.databinding.ActivityMainBinding
+import com.example.testweatherappcilation.domain.WeatherInteractor
+import com.example.testweatherappcilation.domain.WeatherRepository
 import com.google.android.gms.location.CurrentLocationRequest
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.CancellationTokenSource
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 
@@ -48,6 +50,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
     private lateinit var viewModel: WeatherViewModel
+    private lateinit var recyclerAdapter: ForecastRecyclerViewAdapter
+
+    val dataHttpClient = DataHttpClient()
+    val weatherRepository: WeatherRepository = WeatherRepositoryImplementation(dataHttpClient)
+    val weatherInteractor = WeatherInteractor(weatherRepository)
+
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,13 +70,13 @@ class MainActivity : AppCompatActivity() {
 
         viewModel = ViewModelProvider(
             this,
-            WeatherViewModelFactory(dataStore)
+            WeatherViewModelFactory(dataStore, resources, dataHttpClient, weatherInteractor)
         ).get(WeatherViewModel::class.java)
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.stateFlow
-                    .onEach { state ->
+                    .collect { state ->
                         when (state.contentState) {
                             ContentState.Idle, ContentState.Loading -> {
                                 binding.contentWeatherView.visibility = View.GONE
@@ -96,61 +106,39 @@ class MainActivity : AppCompatActivity() {
                                 binding.includeErrorLayout.root.visibility = View.GONE
                             }
                         }
-                    }
-                    .collect { state -> //todo переименовать  в  state  полем текст локешн в котором будет текст только.
 
-                        val actualWeather = state.weatherEntity
-                        if (actualWeather != null) {
-                            binding.contentWeatherView.visibility = View.VISIBLE
+                        val uiModel = state.weatherUiModel
+
+                        if (uiModel != null) {
+                            binding.contentWeatherView.visibility = View.VISIBLE //todo попробовать это выше в фигурную вставить
                         }
 
-                        val districtName = actualWeather?.districtName
-                        val localityName = actualWeather?.localityName
-                            ?: getString(R.string.location_not_idetified)
-                        binding.textLocation.text =
-                            if (districtName == null || districtName == "") localityName else "$districtName, $localityName"
-                        binding.textActualTimeAndYesterdayTemp.text = getString(
-                            R.string.actual_time_and_yesterday_temp,
-                            viewModel.getActualTime(),
-                            viewModel.getYesterdayTemp()
-                        )
-                        // todo во ВМ в мапере сделать логику для
-                        binding.textActualTemp.text = viewModel.getActualTemp()
+                        binding.textLocation.text = uiModel?.textLocation
+                        binding.textActualTimeAndYesterdayTemp.text = uiModel?.textActualTimeAndYesterdayTemp
+                        binding.textActualTemp.text = uiModel?.textActualTemp
 
                         SvgLoader.pluck()
                             .with(this@MainActivity)
                             .load(
                                 getString(
                                     R.string.condition_icon_link,
-                                    actualWeather?.icon
+                                    uiModel?.icon
                                 ),
                                 binding.imageCondition
                             )
 
-                        binding.textCondition.text = actualWeather?.condition?.let {
-                            getString(resources.getIdentifier(it, "string", packageName))
-                        }
-                        binding.textFeelsLike.text =
-                            getString(R.string.feels_like, actualWeather?.feelsLike)
-                        binding.wind.text = actualWeather?.windDirection?.let {
-                            getString(
-                                R.string.wind,
-                                getString(resources.getIdentifier(it, "string", packageName)),
-                                actualWeather.windSpeed
-                            )
-                        }
-                        binding.humidity.text =
-                            getString(R.string.humidity, actualWeather?.humidity)
-                        binding.pressure.text =
-                            getString(R.string.pressure, actualWeather?.pressure)
+                        binding.textCondition.text = uiModel?.textCondition
+                        binding.textFeelsLike.text = uiModel?.textFeelsLike
+                        binding.wind.text = uiModel?.textWind
+                        binding.humidity.text = uiModel?.textHumidity
+                        binding.pressure.text = uiModel?.textPressure
 
-                        val recyclerAdapter = ForecastRecyclerViewAdapter(
-                            actualWeather?.forecasts,
+                        recyclerAdapter = ForecastRecyclerViewAdapter(
+                            uiModel?.forecasts,
                             this@MainActivity
                         ) // todo создаем адаптер вверху и далее диффутилз.
                         val recyclerForecasts = findViewById<RecyclerView>(R.id.recycler_forecasts)
                         recyclerForecasts.adapter = recyclerAdapter
-
                     }
             }
         }
@@ -291,4 +279,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
+
+
 }

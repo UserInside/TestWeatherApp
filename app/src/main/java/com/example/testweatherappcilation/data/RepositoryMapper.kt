@@ -1,9 +1,9 @@
 package com.example.testweatherappcilation.data
 
-import android.content.res.Resources
 import com.example.testweatherappcilation.domain.Forecasts
 import com.example.testweatherappcilation.domain.WeatherCondition
 import com.example.testweatherappcilation.domain.WeatherEntity
+import com.example.testweatherappcilation.domain.WindDirection
 
 object ApiToEntityMapper {
 
@@ -16,7 +16,7 @@ object ApiToEntityMapper {
             icon = item.fact?.icon ?: "",
             condition = mapWeatherCondition(item.fact?.condition?.condition),
             windSpeed = item.fact?.windSpeed ?: 0.0,
-            windDirection = item.fact?.windDirection ?: "",
+            windDirection = mapWindDirection(item.fact?.windDirection),
             humidity = item.fact?.humidity ?: 0,
             pressure = item.fact?.pressure ?: 0,
             dateTime = item.nowDateTime ?: "",
@@ -27,7 +27,7 @@ object ApiToEntityMapper {
         )
     }
 
-    fun mapForecasts(item: ActualWeather): List<Forecasts> {
+    private fun mapForecasts(item: ActualWeather): List<Forecasts> {
         val forecastsList = mutableListOf<Forecasts>()
         for (i in 0 until (item.forecasts?.size ?: 0)) {
             forecastsList.add(
@@ -43,7 +43,7 @@ object ApiToEntityMapper {
         return forecastsList
     }
 
-    fun mapWeatherCondition(from: String?) : WeatherCondition{
+    private fun mapWeatherCondition(from: String?) : WeatherCondition{
         if (from.isNullOrBlank()) return WeatherCondition.Undefined
         return when (from.lowercase()) {                            //todo lowercase !!
             "clear" -> WeatherCondition.Clear
@@ -69,6 +69,22 @@ object ApiToEntityMapper {
         }
 
 
+    }
+
+    private fun mapWindDirection(from: String?): WindDirection {
+        if (from.isNullOrBlank()) return WindDirection.Undefined
+        return when (from.lowercase()) {
+            "nw" -> WindDirection.NorthWest
+            "n" -> WindDirection.North
+            "ne" -> WindDirection.NorthEast
+            "e" -> WindDirection.East
+            "se" -> WindDirection.SouthEast
+            "s" -> WindDirection.South
+            "sw" -> WindDirection.SouthWest
+            "w" -> WindDirection.West
+            "c" -> WindDirection.Calm
+            else -> WindDirection.Undefined
+        }
     }
 
 

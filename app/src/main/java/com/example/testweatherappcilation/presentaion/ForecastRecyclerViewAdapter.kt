@@ -1,4 +1,4 @@
-package com.example.testweatherappcilation.domain
+package com.example.testweatherappcilation.presentaion
 
 import android.app.Activity
 import android.content.Context
@@ -18,7 +18,7 @@ import java.util.Locale
 
 
 class ForecastRecyclerViewAdapter(
-    val forecasts: List<Forecasts?>?,
+    val forecasts: List<WeatherUiModelForecasts?>?,
     context: Context,
 ): RecyclerView.Adapter<ForecastRecyclerViewAdapter.ForecastRecyclerViewHolder>() {
 
@@ -67,7 +67,7 @@ class ForecastRecyclerViewAdapter(
         return forecasts?.size ?: 0
     }
 
-    fun updateList(newList: List<Forecasts>){
+    fun updateList(newList: List<WeatherUiModelForecasts>){
         val forecastDiffUtil = ForecastsDiffUtil(oldList, newList)
         val diffResult = DiffUtil.calculateDiff(forecastDiffUtil)
         oldList = newList

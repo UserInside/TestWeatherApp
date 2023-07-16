@@ -1,9 +1,9 @@
 package com.example.testweatherappcilation.domain
 
 import android.content.res.Resources
-import android.provider.Settings.Global.getString
+
 import com.example.testweatherappcilation.R
-import com.example.testweatherappcilation.presentaion.WeatherUiRenderState
+import com.example.testweatherappcilation.presentaion.WeatherUiModel
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -12,11 +12,12 @@ object DomainToPresentationMapper {
     fun map(
         resources: Resources,
         from: WeatherEntity,
-    ): WeatherUiRenderState {
+    ): WeatherUiModel {
         val actualTempData = from.actualTemp
+        val location = from.localityName ?: resources.getString(R.string.location_not_idetified)
 
-        return WeatherUiRenderState(
-            textLocation = if (from.districtName == null || from.districtName == "") from.localityName else "${from.districtName}, ${from.localityName}",
+        return WeatherUiModel(
+            textLocation = if (from.districtName == null || from.districtName == "") location else "${from.districtName}, $location" ,
             textActualTimeAndYesterdayTemp = resources.getString(
                 R.string.actual_time_and_yesterday_temp,
                 getActualTime(from),
@@ -25,15 +26,12 @@ object DomainToPresentationMapper {
             textActualTemp = if ((actualTempData != null) && (actualTempData > 0)) "+$actualTempData°"
             else "$actualTempData°",
 
-
             textCondition = from.condition?.let {resources.getString(it.textResource)},
             textFeelsLike = resources.getString(R.string.feels_like, from.feelsLike),
-            textWind = from.windDirection?.let {
-                resources.getString(
-                    R.string.wind,
-                    resources.getString(resources.getIdentifier(it, "string", packageName)),
-                    from.windSpeed
-                )},
+            textWind = from.windDirection?.let{resources.getString(
+                R.string.wind,
+                it.textResource,
+                from.windSpeed)},
             textHumidity = resources.getString(R.string.humidity, from.humidity),
             textPressure = resources.getString(R.string.pressure, from.pressure),
         )

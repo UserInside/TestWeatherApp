@@ -1,10 +1,10 @@
-package com.example.testweatherappcilation.domain
+package com.example.testweatherappcilation.presentaion
 
 import androidx.recyclerview.widget.DiffUtil
 
 class ForecastsDiffUtil(
-    private val oldList: List<Forecasts?>?,
-    private val newList: List<Forecasts?>?
+    private val oldList: List<WeatherUiModelForecasts?>?,
+    private val newList: List<WeatherUiModelForecasts?>?
 ) : DiffUtil.Callback() {
 
 

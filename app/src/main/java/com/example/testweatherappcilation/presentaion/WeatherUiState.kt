@@ -4,7 +4,7 @@ import com.example.testweatherappcilation.ContentState
 import com.example.testweatherappcilation.domain.WeatherEntity
 
 data class WeatherUiState(
-    val weatherEntity: WeatherEntity? = null,
+    val weatherUiModel: WeatherUiModel? = null,
     val contentState: ContentState = ContentState.Idle
 ) {
 }

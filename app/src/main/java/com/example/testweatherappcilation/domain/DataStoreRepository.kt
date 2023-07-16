@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.example.testweatherappcilation.data.ActualWeather
+import com.example.testweatherappcilation.presentaion.WeatherUiModel
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
@@ -19,9 +20,9 @@ class DataStoreRepository(
         val lastWeatherEntity = stringPreferencesKey("last weather entity")
     }
 
-    suspend fun saveLastWeatherEntity(weatherEntity: WeatherEntity) {
+    suspend fun saveLastWeatherEntity(weatherUiModel: WeatherUiModel) {
         dataStore.edit { preferences ->
-            preferences[PreferencesKeys.lastWeatherEntity] = Json.encodeToString(weatherEntity)
+            preferences[PreferencesKeys.lastWeatherEntity] = Json.encodeToString(weatherUiModel)
         }
     }
 
@@ -31,9 +32,9 @@ class DataStoreRepository(
         explicitNulls = false
     }
 
-    suspend fun loadLastWeatherEntity(): WeatherEntity? {
+    suspend fun loadLastWeatherEntity(): WeatherUiModel? {
         return dataStore.data.first().get(PreferencesKeys.lastWeatherEntity)
-            ?.let { json.decodeFromString<WeatherEntity>(it) }
+            ?.let { json.decodeFromString<WeatherUiModel>(it) }
     }
 
 }
