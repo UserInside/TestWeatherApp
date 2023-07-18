@@ -1,4 +1,4 @@
-package com.example.testweatherappcilation.presentaion
+package com.example.testweatherappcilation.presentation
 
 
 import android.content.res.Resources
@@ -8,8 +8,10 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.testweatherappcilation.ContentState
-import com.example.testweatherappcilation.data.DataHttpClient
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.testweatherappcilation.common.ContentState
+import com.example.testweatherappcilation.data.ApiToEntityMapper
 import com.example.testweatherappcilation.domain.DataStoreRepository
 import com.example.testweatherappcilation.domain.DomainToPresentationMapper
 import com.example.testweatherappcilation.domain.WeatherEntity
@@ -25,23 +27,9 @@ import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
-
-class WeatherViewModelFactory(
-    private val dataStore: DataStore<Preferences>,
-    private val resources: Resources,
-    private val dataHttpClient: DataHttpClient,
-    private val weatherInteractor: WeatherInteractor,
-) : ViewModelProvider.Factory {
-
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return WeatherViewModel(dataStore, resources, dataHttpClient, weatherInteractor) as T
-    }
-}
-
 class WeatherViewModel(
     dataStore: DataStore<Preferences>,
     val resources: Resources,
-    val dataHttpClient: DataHttpClient,
     val weatherInteractor: WeatherInteractor,
 ) : ViewModel() {
 
@@ -50,17 +38,15 @@ class WeatherViewModel(
     private val _stateFlow = MutableStateFlow<WeatherUiState>(WeatherUiState())
     val stateFlow: StateFlow<WeatherUiState> = _stateFlow.asStateFlow()
 
-    var lat: Double = 0.0
-    var lon: Double = 0.0
-
     init {
+        Log.e("Viewmodel", "VieModel INIT")
         viewModelScope.launch {
             val lastShownWeather = loadLastWeatherEntity()
             lastShownWeather?.let { savedWeather ->
                 _stateFlow.update { state ->
                     state.copy(
                         weatherUiModel = savedWeather,
-                        contentState = ContentState.Done
+                        contentState = ContentState.Done,
                     )
                 }
             }
@@ -82,29 +68,32 @@ class WeatherViewModel(
         }
     }
 
-    fun fetchData(lat: Double = this.lat, lon: Double = this.lon) {
-        this.lat = lat
-        this.lon = lon
+    fun fetchData(lat: Double = stateFlow.value.lat, lon: Double = stateFlow.value.lon) {
+        Log.e("ViewModel", "ViewModel fetch data")
         if (_stateFlow.value.contentState == ContentState.Loading) return
 
         _stateFlow.update { state -> state.copy(contentState = ContentState.Loading) }
         viewModelScope.launch(exceptionHandler) {
-
-            val weatherEntity = getWeatherEntity()
+            Log.e("ViewModel", "1 ViewModel fetch lat $lat - lon $lon")
+            val weatherEntity = getWeatherEntity(lat, lon)
+            Log.e("ViewModel", "2 weatherEntity got $weatherEntity")
             val weatherUiModel = DomainToPresentationMapper.map(resources, weatherEntity)
+            Log.e("ViewModel", "3 ViewModel fetch weatherUIModel $weatherUiModel , location ${weatherUiModel.textLocation}")
             saveLastWeatherEntity(weatherUiModel)
             _stateFlow.update { state ->
                 state.copy(
                     weatherUiModel = weatherUiModel,
-                    contentState = ContentState.Done
+                    contentState = ContentState.Done,
+                    lat = lat,
+                    lon = lon,
                 )
             }
         }
     }
-    suspend fun getWeatherEntity(): WeatherEntity {
-        dataHttpClient.lat = lat
-        dataHttpClient.lon = lon
-        val weatherEntity = weatherInteractor.fetchData()
+
+    suspend fun getWeatherEntity(lat: Double, lon: Double): WeatherEntity {
+        Log.e("ViewModel", "getEntity function")
+        val weatherEntity = weatherInteractor.fetchData(lat, lon)
         return weatherEntity
     }
 
@@ -117,7 +106,7 @@ class WeatherViewModel(
     }
 
 
-    fun getWeatherByCoordinates() {
+    fun getWeatherByCoordinates(lat: Double, lon: Double) {
         try {
             fetchData(lat, lon)
         } catch (throwable: IllegalArgumentException) {
@@ -138,9 +127,21 @@ class WeatherViewModel(
     }
 
 
+    companion object {
+        fun factory(
+            dataStore: DataStore<Preferences>,
+            resources: Resources,
+            weatherInteractor: WeatherInteractor
+        ): ViewModelProvider.Factory {
+            Log.e("VM Factory", "factory works")
+            return viewModelFactory {
+                initializer {
+                    WeatherViewModel(dataStore, resources, weatherInteractor)
+                }
+            }
 
-
-
+        }
+    }
 
 }
 

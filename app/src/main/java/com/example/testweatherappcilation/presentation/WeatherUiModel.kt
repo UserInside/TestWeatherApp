@@ -1,8 +1,8 @@
-package com.example.testweatherappcilation.presentaion
+package com.example.testweatherappcilation.presentation
 
 import kotlinx.serialization.Serializable
 
-
+@Serializable
 data class WeatherUiModel(
     val textLocation: String? = null,
     val textActualTimeAndYesterdayTemp: String? = null,

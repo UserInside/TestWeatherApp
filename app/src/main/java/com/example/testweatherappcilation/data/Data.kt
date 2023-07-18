@@ -1,7 +1,7 @@
 package com.example.testweatherappcilation.data
 
 
-
+import android.util.Log
 import com.example.testweatherappcilation.BuildConfig
 import com.example.testweatherappcilation.domain.WeatherEntity
 import com.example.testweatherappcilation.domain.WeatherRepository
@@ -14,47 +14,33 @@ import io.ktor.client.statement.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 
 
 class WeatherRepositoryImplementation(
-    private val dataHttpClient: DataHttpClient
+    private val weatherDataSource: WeatherDataSource
 ) : WeatherRepository {
 
-    override suspend fun request(): WeatherEntity {
-        return ApiToEntityMapper.map(dataHttpClient.request())
+    override suspend fun request(lat: Double, lon: Double): WeatherEntity {
+        return ApiToEntityMapper.map(weatherDataSource.request(lat, lon))
     }
 }
 
-class DataHttpClient(
-    var lat: Double = 55.75396,
-    var lon: Double = 37.620393,
+class WeatherDataSource(
+    val httpClient: HttpClient,
+//    var lat: Double = 55.75396,
+//    var lon: Double = 37.620393,
 ) {
 
-    suspend fun request(): ActualWeather {
-        val client = HttpClient(OkHttp) {
-            install(ContentNegotiation) {
-                json(Json {
-                    prettyPrint = true
-                    isLenient = true
-                    ignoreUnknownKeys = true
-                })
-            }
-        }
-        val apiKey : String = BuildConfig.ApiKey
-        val response: HttpResponse =
-            client.get("https://api.weather.yandex.ru/v2/forecast?lat=$lat&lon=$lon") {
-                header("X-Yandex-API-Key", apiKey)
-            }
-
-        val weather: ActualWeather = response.body()
-
-
-        client.close()
-
-        return weather
+    suspend fun request(lat: Double, lon: Double): ActualWeather {
+        val apiKey: String = BuildConfig.ApiKey
+        Log.e("DataSource", apiKey)
+        return httpClient
+            .get("https://api.weather.yandex.ru/v2/forecast?lat=$lat&lon=$lon") {
+                header("X-Yandex-API-Key", apiKey)}
+            .body()
     }
 }
+
 
 @Serializable
 data class ActualWeather(

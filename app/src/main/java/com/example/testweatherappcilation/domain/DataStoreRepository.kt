@@ -4,8 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.example.testweatherappcilation.data.ActualWeather
-import com.example.testweatherappcilation.presentaion.WeatherUiModel
+import com.example.testweatherappcilation.presentation.WeatherUiModel
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString

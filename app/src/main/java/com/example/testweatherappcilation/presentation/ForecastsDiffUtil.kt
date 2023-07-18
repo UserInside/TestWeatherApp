@@ -1,4 +1,4 @@
-package com.example.testweatherappcilation.presentaion
+package com.example.testweatherappcilation.presentation
 
 import androidx.recyclerview.widget.DiffUtil
 

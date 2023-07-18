@@ -26,5 +26,4 @@ sealed class WeatherCondition(val textResource: Int) {
     object ThunderstormWithHail: WeatherCondition(R.string.thunderstormWithHail)
     object Undefined: WeatherCondition(R.string.undefined)
 
-
 }

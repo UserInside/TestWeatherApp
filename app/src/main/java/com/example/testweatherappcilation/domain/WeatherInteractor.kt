@@ -4,7 +4,7 @@ class WeatherInteractor(
     private val weatherRepository: WeatherRepository
 ) {
 
-    suspend fun fetchData() : WeatherEntity {
-        return weatherRepository.request()
+    suspend fun fetchData(lat: Double, lon: Double) : WeatherEntity {
+        return weatherRepository.request(lat, lon)
     }
 }

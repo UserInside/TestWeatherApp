@@ -1,4 +1,4 @@
-package com.example.testweatherappcilation.presentaion
+package com.example.testweatherappcilation.presentation
 
 
 import android.Manifest
@@ -8,12 +8,14 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -22,15 +24,15 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.ahmadrosid.svgloader.SvgLoader
-import com.example.testweatherappcilation.ContentState
+import com.example.testweatherappcilation.common.ContentState
 import com.example.testweatherappcilation.R
-import com.example.testweatherappcilation.data.DataHttpClient
+import com.example.testweatherappcilation.common.HttpClientHolder
+import com.example.testweatherappcilation.data.WeatherDataSource
 import com.example.testweatherappcilation.data.WeatherRepositoryImplementation
 import com.example.testweatherappcilation.databinding.ActivityMainBinding
 import com.example.testweatherappcilation.domain.WeatherInteractor
@@ -49,15 +51,20 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
-    private lateinit var viewModel: WeatherViewModel
     private lateinit var recyclerAdapter: ForecastRecyclerViewAdapter
 
-    val dataHttpClient = DataHttpClient()
-    val weatherRepository: WeatherRepository = WeatherRepositoryImplementation(dataHttpClient)
-    val weatherInteractor = WeatherInteractor(weatherRepository)
 
-
-
+    private val viewModel: WeatherViewModel by viewModels {
+        WeatherViewModel.factory(
+            dataStore,
+            resources,
+            WeatherInteractor(
+                WeatherRepositoryImplementation(
+                    WeatherDataSource(HttpClientHolder.httpClient)
+                )
+            )
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,11 +74,6 @@ class MainActivity : AppCompatActivity() {
         requestLocationPermission()
 
         binding.contentWeatherView.visibility = View.GONE
-
-        viewModel = ViewModelProvider(
-            this,
-            WeatherViewModelFactory(dataStore, resources, dataHttpClient, weatherInteractor)
-        ).get(WeatherViewModel::class.java)
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -114,6 +116,7 @@ class MainActivity : AppCompatActivity() {
                         }
 
                         binding.textLocation.text = uiModel?.textLocation
+                        Log.e("MainActivity", uiModel?.textLocation ?: "NO INFO ABOUT LOCATION")
                         binding.textActualTimeAndYesterdayTemp.text = uiModel?.textActualTimeAndYesterdayTemp
                         binding.textActualTemp.text = uiModel?.textActualTemp
 
@@ -171,9 +174,7 @@ class MainActivity : AppCompatActivity() {
                 val lat = binding.editLatitude.text.toString().toDouble()
                 val lon = binding.editLongitude.text.toString().toDouble()
                 if (lat in -90.0..90.0 && lon in -180.0..180.0) {
-                    viewModel.lat = lat
-                    viewModel.lon = lon
-                    viewModel.getWeatherByCoordinates()
+                    viewModel.getWeatherByCoordinates(lat, lon)
                 } else {
                     toastWrongCoordinates()
                 }
@@ -273,9 +274,7 @@ class MainActivity : AppCompatActivity() {
                 CurrentLocationRequest.Builder().build(),
                 CancellationTokenSource().token
             ).addOnSuccessListener { location ->
-                viewModel.lat = location.latitude
-                viewModel.lon = location.longitude
-                viewModel.getWeatherByCoordinates()
+                viewModel.getWeatherByCoordinates(location.latitude, location.longitude)
             }
         }
     }

@@ -16,7 +16,7 @@
         android:theme="@style/Theme.TestWeatherApplication"
         tools:targetApi="31">
         <activity
-            android:name=".presentaion.MainActivity"
+            android:name=".presentation.MainActivity"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,7 +25,7 @@
             </intent-filter>
         </activity>
         
-        <service android:name=".presentaion.MainActivity"
+        <service android:name=".presentation.MainActivity"
             android:foregroundServiceType="location">
         </service>
     </application>
