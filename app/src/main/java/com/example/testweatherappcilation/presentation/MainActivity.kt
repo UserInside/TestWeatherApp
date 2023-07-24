@@ -116,7 +116,6 @@ class MainActivity : AppCompatActivity() {
                         }
 
                         binding.textLocation.text = uiModel?.textLocation
-                        Log.e("MainActivity", uiModel?.textLocation ?: "NO INFO ABOUT LOCATION")
                         binding.textActualTimeAndYesterdayTemp.text = uiModel?.textActualTimeAndYesterdayTemp
                         binding.textActualTemp.text = uiModel?.textActualTemp
 
@@ -183,6 +182,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
         binding.btnTokyo.setOnClickListener {
+            Log.e("ACTIVITY", "Tokio button clicked")
             viewModel.getTokyoWeather()
         }
         binding.btnRostov.setOnClickListener {

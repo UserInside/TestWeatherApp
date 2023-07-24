@@ -39,7 +39,6 @@ class WeatherViewModel(
     val stateFlow: StateFlow<WeatherUiState> = _stateFlow.asStateFlow()
 
     init {
-        Log.e("Viewmodel", "VieModel INIT")
         viewModelScope.launch {
             val lastShownWeather = loadLastWeatherEntity()
             lastShownWeather?.let { savedWeather ->
@@ -68,38 +67,36 @@ class WeatherViewModel(
         }
     }
 
-    fun fetchData(lat: Double = stateFlow.value.lat, lon: Double = stateFlow.value.lon) {
-        Log.e("ViewModel", "ViewModel fetch data")
+    fun fetchData() {
+        Log.e("VIEWMODEL", "VEIWMODEL Fetch data")
         if (_stateFlow.value.contentState == ContentState.Loading) return
 
         _stateFlow.update { state -> state.copy(contentState = ContentState.Loading) }
         viewModelScope.launch(exceptionHandler) {
-            Log.e("ViewModel", "1 ViewModel fetch lat $lat - lon $lon")
-            val weatherEntity = getWeatherEntity(lat, lon)
-            Log.e("ViewModel", "2 weatherEntity got $weatherEntity")
+            Log.e("VIEWMODEL", "VIEWMODEL scope open")
+            val weatherEntity = getWeatherEntity(_stateFlow.value.lat, _stateFlow.value.lon)
+            Log.e("VIEWMODEL", "VIEWMODEL weatherEntity got")
             val weatherUiModel = DomainToPresentationMapper.map(resources, weatherEntity)
-            Log.e("ViewModel", "3 ViewModel fetch weatherUIModel $weatherUiModel , location ${weatherUiModel.textLocation}")
-            saveLastWeatherEntity(weatherUiModel)
+            Log.e("VIEWMODEL", "VIEWMODEL weatherUiModel mapped")
+//            saveLastWeatherEntity(weatherUiModel)
             _stateFlow.update { state ->
+                Log.e("VIEWMODEL", " Update weatherUIModel")
                 state.copy(
                     weatherUiModel = weatherUiModel,
                     contentState = ContentState.Done,
-                    lat = lat,
-                    lon = lon,
                 )
             }
         }
     }
 
     suspend fun getWeatherEntity(lat: Double, lon: Double): WeatherEntity {
-        Log.e("ViewModel", "getEntity function")
         val weatherEntity = weatherInteractor.fetchData(lat, lon)
         return weatherEntity
     }
 
-    suspend fun saveLastWeatherEntity(weatherUiModel: WeatherUiModel) {
-        dataStoreRepository.saveLastWeatherEntity(weatherUiModel)
-    }
+//    suspend fun saveLastWeatherEntity(weatherUiModel: WeatherUiModel) {
+//        dataStoreRepository.saveLastWeatherEntity(weatherUiModel)
+//    }
 
     suspend fun loadLastWeatherEntity(): WeatherUiModel? {
         return dataStoreRepository.loadLastWeatherEntity()
@@ -108,22 +105,31 @@ class WeatherViewModel(
 
     fun getWeatherByCoordinates(lat: Double, lon: Double) {
         try {
-            fetchData(lat, lon)
+            _stateFlow.value.lat = lat
+            _stateFlow.value.lon = lon
+            fetchData()
         } catch (throwable: IllegalArgumentException) {
             Log.e("TAG", "Wrong coordinates", throwable)
         }
     }
 
     fun getTokyoWeather() {
-        fetchData(35.6895, 139.692)
+        _stateFlow.value.lat = 35.6895
+        _stateFlow.value.lon = 139.692
+        Log.e("VIEWMODEL", "VIEWMODEL Tokio button clicked")
+        fetchData()
     }
 
     fun getRostovWeather() {
-        fetchData(47.222078, 39.720358)
+        _stateFlow.value.lat = 47.222078
+        _stateFlow.value.lon = 39.720358
+        fetchData()
     }
 
     fun getAbinskWeather() {
-        fetchData(44.86623764, 38.15129089)
+        _stateFlow.value.lat = 44.86623764
+        _stateFlow.value.lon = 38.15129089
+        fetchData()
     }
 
 
@@ -133,7 +139,6 @@ class WeatherViewModel(
             resources: Resources,
             weatherInteractor: WeatherInteractor
         ): ViewModelProvider.Factory {
-            Log.e("VM Factory", "factory works")
             return viewModelFactory {
                 initializer {
                     WeatherViewModel(dataStore, resources, weatherInteractor)

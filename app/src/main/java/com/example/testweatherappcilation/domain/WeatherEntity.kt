@@ -19,7 +19,7 @@ data class WeatherEntity(
     val localityName: String?,
 
     val forecasts: List<Forecasts?>?,
-    )
+)
 
 @Serializable
 data class Forecasts(
@@ -27,6 +27,6 @@ data class Forecasts(
     val forecastsTempDay: Int?,
     val forecastsTempNight: Int?,
     val forecastsIcon: String?,
-    val forecastsCondition: String?,
+    val forecastsCondition: WeatherCondition?,
 )
 

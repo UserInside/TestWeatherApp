@@ -36,7 +36,7 @@ object ApiToEntityMapper {
                     forecastsTempDay = item.forecasts?.get(i)?.parts?.dayShort?.temp,
                     forecastsTempNight = item.forecasts?.get(i)?.parts?.nightShort?.temp,
                     forecastsIcon = item.forecasts?.get(i)?.parts?.dayShort?.icon,
-                    forecastsCondition = item.forecasts?.get(i)?.parts?.dayShort?.condition?.condition,
+                    forecastsCondition = mapWeatherCondition(item.forecasts?.get(i)?.parts?.dayShort?.condition?.condition),
                 )
             )
         }

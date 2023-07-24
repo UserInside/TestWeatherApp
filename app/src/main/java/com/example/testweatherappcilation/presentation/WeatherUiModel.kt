@@ -1,5 +1,6 @@
 package com.example.testweatherappcilation.presentation
 
+import android.content.res.Resources
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -19,15 +20,14 @@ data class WeatherUiModel(
     val localityName: String? = null,
 
     val forecasts: List<WeatherUiModelForecasts?>? = null
-
-
 )
 
 @Serializable
 data class WeatherUiModelForecasts(
+    val forecastsDay: String?,
     val forecastsDate: String?,
-    val forecastsTempDay: Int?,
-    val forecastsTempNight: Int?,
+    val forecastsTempDay: String?,
+    val forecastsTempNight: String?,
     val forecastsIcon: String?,
     val forecastsCondition: String?,
 )

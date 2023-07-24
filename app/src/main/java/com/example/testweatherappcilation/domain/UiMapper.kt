@@ -6,19 +6,22 @@ import android.util.Log
 import com.example.testweatherappcilation.R
 import com.example.testweatherappcilation.presentation.WeatherUiModel
 import com.example.testweatherappcilation.presentation.WeatherUiModelForecasts
+import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
+import java.util.Locale
 
 object DomainToPresentationMapper {
-    fun map(resources: Resources, from: WeatherEntity,): WeatherUiModel {
+    fun map(resources: Resources, from: WeatherEntity): WeatherUiModel {
+        Log.e("UIMapper", "UI MAPPER map started")
 
         val actualTempData = from.actualTemp
-        val location = from.localityName ?: resources.getString(R.string.location_not_idetified)
-        Log.e("DomainToPresentationMapper", "DTP Mapped - location $location")
-        Log.e("DomainToPresentationMapper", "DTP Mapped - actualTemp $actualTempData")
+        val location =
+            if (from.localityName == null || from.localityName == "") resources.getString(R.string.location_not_idetified) else from.localityName
         val model = WeatherUiModel(
-            textLocation = if (from.districtName == null || from.districtName == "") location else "${from.districtName}, $location" ,
+            textLocation = if (from.districtName == null || from.districtName == "") location else "${from.districtName}, $location",
             textActualTimeAndYesterdayTemp = resources.getString(
                 R.string.actual_time_and_yesterday_temp,
                 getActualTime(from),
@@ -27,33 +30,51 @@ object DomainToPresentationMapper {
             textActualTemp = if ((actualTempData != null) && (actualTempData > 0)) "+$actualTempData°"
             else "$actualTempData°",
             icon = from.icon,
-            textCondition = from.condition?.let {resources.getString(it.textResource)},
+            textCondition = from.condition?.let { resources.getString(it.textResource) },
             textFeelsLike = resources.getString(R.string.feels_like, from.feelsLike),
-            textWind = from.windDirection?.let{resources.getString(
+            textWind = resources.getString(
                 R.string.wind,
-                it.textResource,
-                from.windSpeed)},
+                from.windDirection?.let { resources.getString(it.textResource) },
+                from.windSpeed
+            ),
             textHumidity = resources.getString(R.string.humidity, from.humidity),
             textPressure = resources.getString(R.string.pressure, from.pressure),
 
-            forecasts = mapWeatherUiModelForecasts(from.forecasts)
+            forecasts = mapWeatherUiModelForecasts(resources, from.forecasts)
 
         )
-        Log.e("DomainToPresentationMapper", "DTP Mapped - model created $model")
+        Log.e("UIMapper", "UI MAPPER map finished")
 
         return model
     }
 
-    private fun mapWeatherUiModelForecasts(forecasts: List<Forecasts?>?): List<WeatherUiModelForecasts> {
+    private fun mapWeatherUiModelForecasts(
+        resources: Resources,
+        forecasts: List<Forecasts?>?
+    ): List<WeatherUiModelForecasts> {
         val weatherUiModelForecasts = mutableListOf<WeatherUiModelForecasts>()
         for (i in 0 until (forecasts?.size ?: 0)) {
             weatherUiModelForecasts.add(
                 WeatherUiModelForecasts(
-                    forecastsDate = forecasts?.get(i)?.forecastsDate,
-                    forecastsTempDay = forecasts?.get(i)?.forecastsTempDay,
-                    forecastsTempNight = forecasts?.get(i)?.forecastsTempNight,
+                    forecastsDay = forecasts?.get(i)?.forecastsDate?.let {
+                        LocalDate.parse(it).dayOfWeek.getDisplayName(
+                            TextStyle.SHORT,
+                            Locale("ru", "RU")
+                        )
+                    }?.replaceFirstChar { it.uppercase() },
+                    forecastsDate = forecasts?.get(i)?.forecastsDate?.let {
+                        LocalDate.parse(it, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                    }
+                        ?.format(DateTimeFormatter.ofPattern("dd MMM", Locale("ru", "RU")))
+                        .toString(),
+                    forecastsTempDay = forecasts?.get(i)?.forecastsTempDay?.let { dayTemp -> if (dayTemp > 0) "+$dayTemp°" else "$dayTemp°" },
+                    forecastsTempNight = forecasts?.get(i)?.forecastsTempNight?.let { nightTemp -> if (nightTemp > 0) "+$nightTemp°" else "$nightTemp°" },
                     forecastsIcon = forecasts?.get(i)?.forecastsIcon,
-                    forecastsCondition = forecasts?.get(i)?.forecastsCondition
+                    forecastsCondition = forecasts?.get(i)?.forecastsCondition?.let {
+                        Log.e("COND", "condition ---- ${it}")
+                        //todo не определяется partly-cloudy
+                        resources.getString(it.textResource)
+                    }
                 )
             )
         }
