@@ -7,7 +7,6 @@ class ForecastsDiffUtil(
     private val newList: List<WeatherUiModelForecasts?>?
 ) : DiffUtil.Callback() {
 
-
     override fun getOldListSize(): Int {
         return oldList?.size ?: 0
     }

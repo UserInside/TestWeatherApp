@@ -53,7 +53,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
     private lateinit var recyclerAdapter: ForecastRecyclerViewAdapter
 
-
     private val viewModel: WeatherViewModel by viewModels {
         WeatherViewModel.factory(
             dataStore,
@@ -182,7 +181,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
         binding.btnTokyo.setOnClickListener {
-            Log.e("ACTIVITY", "Tokio button clicked")
             viewModel.getTokyoWeather()
         }
         binding.btnRostov.setOnClickListener {

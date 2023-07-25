@@ -6,7 +6,6 @@ import com.example.testweatherappcilation.domain.WeatherEntity
 import com.example.testweatherappcilation.domain.WindDirection
 
 object ApiToEntityMapper {
-
     fun map(item: ActualWeather): WeatherEntity {
         return WeatherEntity(
             timeZoneName = item.info?.tzinfo?.name ?: "",
@@ -22,7 +21,6 @@ object ApiToEntityMapper {
             dateTime = item.nowDateTime ?: "",
             districtName = item.geoObject?.district?.name ?: "",
             localityName = item.geoObject?.locality?.name ?: "",
-
             forecasts = mapForecasts(item)
         )
     }
@@ -47,28 +45,26 @@ object ApiToEntityMapper {
         if (from.isNullOrBlank()) return WeatherCondition.Undefined
         return when (from.lowercase()) {                            //todo lowercase !!
             "clear" -> WeatherCondition.Clear
-            "partlyCloudy" -> WeatherCondition.PartlyCloudy
+            "partlycloudy" -> WeatherCondition.PartlyCloudy
             "cloudy" -> WeatherCondition.Cloudy
             "overcast" -> WeatherCondition.Overcast
             "drizzle" -> WeatherCondition.Drizzle
-            "lightRain" -> WeatherCondition.LightRain
+            "lightrain" -> WeatherCondition.LightRain
             "rain" -> WeatherCondition.Rain
-            "moderateRain" -> WeatherCondition.ModerateRain
-            "heavyRain" -> WeatherCondition.HeavyRain
-            "continuousHeavyRain" -> WeatherCondition.ContinuousHeavyRain
+            "moderaterain" -> WeatherCondition.ModerateRain
+            "heavyrain" -> WeatherCondition.HeavyRain
+            "continuousheavyrain" -> WeatherCondition.ContinuousHeavyRain
             "showers" -> WeatherCondition.Showers
-            "wetSnow" -> WeatherCondition.WetSnow
-            "lightSnow" -> WeatherCondition.LightSnow
+            "wetsnow" -> WeatherCondition.WetSnow
+            "lightsnow" -> WeatherCondition.LightSnow
             "snow" -> WeatherCondition.Snow
-            "snowShowers" -> WeatherCondition.SnowShowers
+            "snowshowers" -> WeatherCondition.SnowShowers
             "hail" -> WeatherCondition.Hail
             "thunderstorm" -> WeatherCondition.Thunderstorm
-            "thunderstormWithRain" -> WeatherCondition.ThunderstormWithRain
-            "thunderstormWithHail" -> WeatherCondition.ThunderstormWithHail
+            "thunderstormwithrain" -> WeatherCondition.ThunderstormWithRain
+            "thunderstormwithhail" -> WeatherCondition.ThunderstormWithHail
             else -> WeatherCondition.Undefined
         }
-
-
     }
 
     private fun mapWindDirection(from: String?): WindDirection {
@@ -86,8 +82,4 @@ object ApiToEntityMapper {
             else -> WindDirection.Undefined
         }
     }
-
-
-
-
 }

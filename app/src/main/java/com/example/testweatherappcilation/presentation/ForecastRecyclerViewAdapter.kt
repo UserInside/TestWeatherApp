@@ -22,7 +22,6 @@ class ForecastRecyclerViewAdapter(
     val forecasts: List<WeatherUiModelForecasts?>?,
     context: Context,
 ) : RecyclerView.Adapter<ForecastRecyclerViewAdapter.ForecastRecyclerViewHolder>() {
-
     val mContext = context
 
     private var oldList = forecasts
@@ -44,22 +43,16 @@ class ForecastRecyclerViewAdapter(
 
     override fun onBindViewHolder(holder: ForecastRecyclerViewHolder, position: Int) {
         val item = forecasts?.get(position)
-        holder.textDay.text =
-            if (position == 0) mContext.getString(R.string.today) else item?.forecastsDay
+        holder.textDay.text = if (position == 0) mContext.getString(R.string.today) else item?.forecastsDay
         holder.textDate.text = item?.forecastsDate
-
-        SvgLoader.pluck()
-            .with(mContext as Activity)
-            .load(
-                "https://yastatic.net/weather/i/icons/funky/dark/${item?.forecastsIcon}.svg",
-                holder.imageCondition
-            )
-
+        holder.imageCondition.let {
+            SvgLoader.pluck()
+                .with(mContext as Activity)
+                .load("https://yastatic.net/weather/i/icons/funky/dark/${item?.forecastsIcon}.svg", it)
+        }
         holder.textDayTemp.text = item?.forecastsTempDay
         holder.textNightTemp.text = item?.forecastsTempNight
-//        Log.e("COND", "condition ---- ${item?.forecastsCondition}")
         holder.textCondition.text = item?.forecastsCondition
-
     }
 
     override fun getItemCount(): Int {

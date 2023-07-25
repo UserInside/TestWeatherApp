@@ -15,8 +15,6 @@ import java.util.Locale
 
 object DomainToPresentationMapper {
     fun map(resources: Resources, from: WeatherEntity): WeatherUiModel {
-        Log.e("UIMapper", "UI MAPPER map started")
-
         val actualTempData = from.actualTemp
         val location =
             if (from.localityName == null || from.localityName == "") resources.getString(R.string.location_not_idetified) else from.localityName
@@ -39,12 +37,8 @@ object DomainToPresentationMapper {
             ),
             textHumidity = resources.getString(R.string.humidity, from.humidity),
             textPressure = resources.getString(R.string.pressure, from.pressure),
-
             forecasts = mapWeatherUiModelForecasts(resources, from.forecasts)
-
         )
-        Log.e("UIMapper", "UI MAPPER map finished")
-
         return model
     }
 
@@ -71,8 +65,6 @@ object DomainToPresentationMapper {
                     forecastsTempNight = forecasts?.get(i)?.forecastsTempNight?.let { nightTemp -> if (nightTemp > 0) "+$nightTemp°" else "$nightTemp°" },
                     forecastsIcon = forecasts?.get(i)?.forecastsIcon,
                     forecastsCondition = forecasts?.get(i)?.forecastsCondition?.let {
-                        Log.e("COND", "condition ---- ${it}")
-                        //todo не определяется partly-cloudy
                         resources.getString(it.textResource)
                     }
                 )
@@ -97,5 +89,4 @@ object DomainToPresentationMapper {
             if ((yesterdayTempData != null) && (yesterdayTempData > 0)) "+$yesterdayTempData" else "$yesterdayTempData"
         return yesterdayTemp
     }
-
 }

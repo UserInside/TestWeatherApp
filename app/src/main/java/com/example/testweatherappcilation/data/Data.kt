@@ -1,7 +1,5 @@
 package com.example.testweatherappcilation.data
 
-
-import android.util.Log
 import com.example.testweatherappcilation.BuildConfig
 import com.example.testweatherappcilation.domain.WeatherEntity
 import com.example.testweatherappcilation.domain.WeatherRepository
@@ -27,20 +25,15 @@ class WeatherRepositoryImplementation(
 
 class WeatherDataSource(
     val httpClient: HttpClient,
-//    var lat: Double = 55.75396,
-//    var lon: Double = 37.620393,
 ) {
-
     suspend fun request(lat: Double, lon: Double): ActualWeather {
         val apiKey: String = BuildConfig.ApiKey
-        Log.e("DataSource", apiKey)
         return httpClient
             .get("https://api.weather.yandex.ru/v2/forecast?lat=$lat&lon=$lon") {
                 header("X-Yandex-API-Key", apiKey)}
             .body()
     }
 }
-
 
 @Serializable
 data class ActualWeather(
