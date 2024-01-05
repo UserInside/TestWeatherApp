@@ -1,28 +1,38 @@
 package com.example.testweatherappcilation.ui.activities
 
+import android.Manifest
 import android.content.Context
-import android.content.res.Resources
+import android.content.DialogInterface
+import android.content.Intent
+import android.content.pm.PackageManager
+
+import android.content.pm.PackageManager.PERMISSION_GRANTED
+import android.location.LocationManager
+
 import android.os.Bundle
+import android.provider.Settings
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
-import androidx.lifecycle.Lifecycle
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.ahmadrosid.svgloader.SvgLoader
-
 import com.example.testweatherappcilation.R
 import com.example.testweatherappcilation.databinding.ActivityMainBinding
 import com.example.testweatherappcilation.mvp.models.WeatherUiModel
 import com.example.testweatherappcilation.mvp.presenters.MainActivityPresenter
 import com.example.testweatherappcilation.ui.adapters.ForecastRecyclerViewAdapter
 import com.example.testweatherappcilation.mvp.views.MainActivityView
+import com.google.android.gms.location.CurrentLocationRequest
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.coroutines.launch
 import moxy.MvpAppCompatActivity
 import moxy.ktx.moxyPresenter
-import moxy.presenter.InjectPresenter
-import moxy.presenter.ProvidePresenter
 
 class MainActivity : MvpAppCompatActivity(), MainActivityView {
 
@@ -39,12 +49,11 @@ class MainActivity : MvpAppCompatActivity(), MainActivityView {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-//        requestLocationPermission()
+        requestLocationPermission()
 
         binding.contentWeatherView.visibility = View.VISIBLE
 
         lifecycleScope.launch {
-
 
         }
 //                presenter { state ->
@@ -105,40 +114,31 @@ class MainActivity : MvpAppCompatActivity(), MainActivityView {
         }
          **/
 
-//                //
-//                    recyclerAdapter = ForecastRecyclerViewAdapter(
-//                        uiModel?.forecasts,
-//                        this@MainActivity
-//                    )
-//                    binding.recyclerForecasts.adapter = recyclerAdapter
-//                }
-//            }
-//        }
 
-//        binding.btnGetWeatherAround.setOnClickListener {
-//
-//            if (isGPSEnable()) {
-//                when {
-//                    ContextCompat.checkSelfPermission(
-//                        this@MainActivity,
-//                        Manifest.permission.ACCESS_COARSE_LOCATION
-//                    ) == PackageManager.PERMISSION_GRANTED -> {
-//                        binding.contentWeatherView.visibility = View.VISIBLE
-//                        getWeatherAround()
-//                    }
-//
-//                    shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION) -> {
-//                        showMessageLocatonPermissionRequirement()
-//                    }
-//
-//                    else -> {
-//                        requestPermissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
-//                    }
-//                }
-//            } else {
-//                showMessageGPSRequirement()
-//            }
-//        }
+        binding.btnGetWeatherAround.setOnClickListener {
+            if (isGPSEnable()) {
+                when {
+                    ContextCompat.checkSelfPermission(
+                        this@MainActivity,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED -> {
+                        binding.contentWeatherView.visibility = View.VISIBLE
+                        getWeatherAround()
+                    }
+
+                    shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION) -> {
+                        showMessageLocationPermissionRequirement()
+                    }
+
+                    else -> {
+                        requestPermissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
+                    }
+                }
+            } else {
+                showMessageGPSRequirement()
+            }
+        }
+
 
         binding.btnGetWeatherByCoordinates.setOnClickListener {
             try {
@@ -149,10 +149,10 @@ class MainActivity : MvpAppCompatActivity(), MainActivityView {
                         presenter.getWeatherByCoordinates(lat, lon)
                     }
                 } else {
-//                    presenter.toastWrongCoordinates()
+                    toastWrongCoordinates()
                 }
             } catch (e: Throwable) {
-//                presenter.toastWrongCoordinates()
+                toastWrongCoordinates()
             }
         }
 
@@ -174,105 +174,15 @@ class MainActivity : MvpAppCompatActivity(), MainActivityView {
             }
         }
 
-//        val swipeRefresh = findViewById<SwipeRefreshLayout>(R.id.swipeRefresh)
-//        swipeRefresh.setColorSchemeColors(getColor(R.color.purple_700))
-//        swipeRefresh.setOnRefreshListener {
-//            viewModel.fetchData()
-//            swipeRefresh.isRefreshing = false
-//        }
-//    }
-
-//    override fun onDestroy() {
-//        super.onDestroy();
-//        SvgLoader.pluck().close();
-//    }
-
-        fun toastWrongCoordinates() {
-            Toast.makeText(
-                this@MainActivity,
-                getString(R.string.wrong_coordinates),
-                Toast.LENGTH_LONG
-            )
-                .show()
+        val swipeRefresh = findViewById<SwipeRefreshLayout>(R.id.swipeRefresh)
+        swipeRefresh.setColorSchemeColors(getColor(R.color.purple_700))
+        swipeRefresh.setOnRefreshListener {
+            presenter.showActualWeather()
+            swipeRefresh.isRefreshing = false
         }
-
-//    fun requestLocationPermission() {
-//        requestPermissionLauncher = registerForActivityResult(
-//            ActivityResultContracts.RequestPermission()
-//        ) {
-//            if (ContextCompat.checkSelfPermission(
-//                    this@MainActivity,
-//                    Manifest.permission.ACCESS_COARSE_LOCATION
-//                ) == PERMISSION_GRANTED
-//            ) {
-//                getWeatherAround()
-//            } else {
-//                Toast.makeText(
-//                    this@MainActivity,
-//                    getString(R.string.location_access_denied),
-//                    Toast.LENGTH_SHORT
-//                ).show()
-//            }
-//        }
-//    }
-
-//    private fun showMessageLocatonPermissionRequirement() {
-//        AlertDialog.Builder(this@MainActivity)
-//            .setMessage(getString(R.string.message_location_permission_requirement))
-//            .setPositiveButton(getString(R.string.button_ok)) { _: DialogInterface, _: Int ->
-//                requestPermissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
-//            }
-//            .setNegativeButton(getString(R.string.button_cancel), null)
-//            .create()
-//            .show()
-//    }
-//
-//    private fun isGPSEnable(): Boolean {
-//        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-//        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-//            return false
-//        }
-//        return true
-//    }
-//
-//    private fun showMessageGPSRequirement() {
-//        AlertDialog.Builder(this@MainActivity)
-//            .setMessage(getString(R.string.gps_turn_on))
-//            .setPositiveButton(getString(R.string.button_ok)) { _: DialogInterface, _: Int
-//                ->
-//                startActivity(Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS))
-//                requestLocationPermission()
-//            }
-//            .setNegativeButton(getString(R.string.button_cancel), null)
-//            .create()
-//            .show()
-//    }
-//
-//    private fun getWeatherAround() {
-//        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this@MainActivity)
-//
-//        if (ContextCompat.checkSelfPermission(
-//                this@MainActivity,
-//                Manifest.permission.ACCESS_COARSE_LOCATION
-//            ) == PackageManager.PERMISSION_GRANTED
-//        ) {
-//            fusedLocationClient.getCurrentLocation(
-//                CurrentLocationRequest.Builder().build(),
-//                CancellationTokenSource().token
-//            ).addOnSuccessListener { location ->
-//                viewModel.getWeatherByCoordinates(location.latitude, location.longitude)
-//            }
-//        }
-//    }
-//
-
     }
 
-    override fun showWeatherByCoordinates(lat: Double, lon: Double) {
-        TODO("Not yet implemented")
-    }
-
-    override fun showCityWeather(model: WeatherUiModel) {
+    override fun showWeather(model: WeatherUiModel) {
         binding.textLocation.text = model.textLocation
         binding.textActualTimeAndYesterdayTemp.text =
             model.textActualTimeAndYesterdayTemp
@@ -294,9 +204,92 @@ class MainActivity : MvpAppCompatActivity(), MainActivityView {
         binding.humidity.text = model.textHumidity
         binding.pressure.text = model.textPressure
 
-        recyclerAdapter = ForecastRecyclerViewAdapter(model.forecasts,this@MainActivity)
+        recyclerAdapter = ForecastRecyclerViewAdapter(model.forecasts, this@MainActivity)
         binding.recyclerForecasts.adapter = recyclerAdapter
 
+    }
+
+    private fun requestLocationPermission() {
+        requestPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) {
+            if (ContextCompat.checkSelfPermission(
+                    this@MainActivity,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PERMISSION_GRANTED
+            ) {
+                getWeatherAround()
+            } else {
+                Toast.makeText(
+                    this@MainActivity,
+                    getString(R.string.location_access_denied),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+    private fun showMessageLocationPermissionRequirement() {
+        AlertDialog.Builder(this@MainActivity)
+            .setMessage(getString(R.string.message_location_permission_requirement))
+            .setPositiveButton(getString(R.string.button_ok)) { _: DialogInterface, _: Int ->
+                requestPermissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
+            }
+            .setNegativeButton(getString(R.string.button_cancel), null)
+            .create()
+            .show()
+    }
+
+    private fun isGPSEnable(): Boolean {
+        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            return true
+        }
+        return false
+    }
+
+    private fun showMessageGPSRequirement() {
+        AlertDialog.Builder(this@MainActivity)
+            .setMessage(getString(R.string.gps_turn_on))
+            .setPositiveButton(getString(R.string.button_ok)) { _: DialogInterface, _: Int
+                ->
+                startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                requestLocationPermission()
+            }
+            .setNegativeButton(getString(R.string.button_cancel), null)
+            .create()
+            .show()
+    }
+
+    private fun getWeatherAround() {
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this@MainActivity)
+
+        if (ContextCompat.checkSelfPermission(
+                this@MainActivity,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            fusedLocationClient.getCurrentLocation(
+                CurrentLocationRequest.Builder().build(),
+                CancellationTokenSource().token
+            ).addOnSuccessListener { location ->
+                lifecycleScope.launch {
+                    presenter.getWeatherByCoordinates(location.latitude, location.longitude)
+                }
+            }
+        }
+    }
+
+    private fun toastWrongCoordinates() {
+        Toast.makeText(
+            this@MainActivity,
+            getString(R.string.wrong_coordinates),
+            Toast.LENGTH_LONG
+        ).show()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        SvgLoader.pluck().close()
     }
 
 }

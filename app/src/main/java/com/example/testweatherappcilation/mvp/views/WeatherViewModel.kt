@@ -83,14 +83,9 @@ class WeatherViewModel(
         return weatherEntity
     }
 
-    suspend fun saveLastWeatherEntity(weatherUiModel: WeatherUiModel) {
-        dataStoreRepository.saveLastWeatherEntity(weatherUiModel)
-    }
 
-    suspend fun loadLastWeatherEntity(): WeatherUiModel? {
-        return mockData()
-//        return dataStoreRepository.loadLastWeatherEntity()
-    }
+
+
 
     fun getWeatherByCoordinates(lat: Double, lon: Double) {
         try {

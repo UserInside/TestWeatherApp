@@ -19,16 +19,16 @@ class DataStoreRepository(
         val lastWeatherEntity = stringPreferencesKey("last weather entity")
     }
 
-    suspend fun saveLastWeatherEntity(weatherUiModel: WeatherUiModel) {
-        dataStore.edit { preferences ->
-            preferences[PreferencesKeys.lastWeatherEntity] = Json.encodeToString(weatherUiModel)
-        }
-    }
-
     @OptIn(ExperimentalSerializationApi::class)
     private val json = Json{
         ignoreUnknownKeys = true
         explicitNulls = false
+    }
+
+    suspend fun saveLastWeatherEntity(weatherUiModel: WeatherUiModel) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.lastWeatherEntity] = Json.encodeToString(weatherUiModel)
+        }
     }
 
     suspend fun loadLastWeatherEntity(): WeatherUiModel? {

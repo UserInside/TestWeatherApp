@@ -8,7 +8,5 @@ import moxy.viewstate.strategy.StateStrategyType
 @StateStrategyType(value = AddToEndSingleTagStrategy::class)
 interface MainActivityView : MvpView {
 
-    fun showWeatherByCoordinates(lat: Double, lon: Double)
-
-    fun showCityWeather(model: WeatherUiModel)
+    fun showWeather(model: WeatherUiModel)
 }
