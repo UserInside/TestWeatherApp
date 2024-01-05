@@ -1,4 +1,4 @@
-package com.example.testweatherappcilation.common
+package com.example.testweatherappcilation.mvp.common
 
 sealed class ContentState {
     object Idle : ContentState()

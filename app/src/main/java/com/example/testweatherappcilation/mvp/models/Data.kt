@@ -1,15 +1,9 @@
-package com.example.testweatherappcilation.data
+package com.example.testweatherappcilation.mvp.models
 
 import com.example.testweatherappcilation.BuildConfig
-import com.example.testweatherappcilation.domain.WeatherEntity
-import com.example.testweatherappcilation.domain.WeatherRepository
 import io.ktor.client.*
 import io.ktor.client.call.*
-import io.ktor.client.engine.okhttp.*
-import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -28,10 +22,9 @@ class WeatherDataSource(
 ) {
     suspend fun request(lat: Double, lon: Double): ActualWeather {
         val apiKey: String = BuildConfig.ApiKey
-        return httpClient
-            .get("https://api.weather.yandex.ru/v2/forecast?lat=$lat&lon=$lon") {
-                header("X-Yandex-API-Key", apiKey)}
-            .body()
+        return httpClient.get("https://api.weather.yandex.ru/v2/forecast?lat=$lat&lon=$lon") {
+            header("X-Yandex-API-Key", apiKey)
+        }.body()
     }
 }
 
@@ -41,79 +34,72 @@ data class ActualWeather(
     val yesterday: Yesterday?,
     val fact: Fact?,
     val forecasts: List<ForecastsDate>?,
-    @SerialName("now_dt")
-    val nowDateTime: String?,
-    @SerialName("geo_object")
-    val geoObject: GeoObject?,
-)
+    @SerialName("now_dt") val nowDateTime: String?,
+    @SerialName("geo_object") val geoObject: GeoObject?,
+) {
+    @Serializable
+    data class Info(
+        val tzinfo: TzInfo?,
+    ) {
+        @Serializable
+        data class TzInfo(
+            val name: String?,
+        )
+    }
 
-@Serializable
-data class Info(
-    val tzinfo: TzInfo?,
-)
+    @Serializable
+    data class Yesterday(
+        val temp: Int?,
+    )
 
-@Serializable
-data class TzInfo(
-    val name: String?,
-)
+    @Serializable
+    data class Fact(
+        val temp: Int?,
+        @SerialName("feels_like") val feelsLike: Int?,
+        val icon: String?,
+        val condition: Condition,
+        @SerialName("wind_speed") val windSpeed: Double?,
+        @SerialName("wind_dir") val windDirection: String?,
+        val humidity: Int?,
+        @SerialName("pressure_mm") val pressure: Int?,
+    )
 
-@Serializable
-data class GeoObject(
-    val district: District?,
-    val locality: Locality?,
-)
+    @Serializable
+    data class ForecastsDate(
+        val date: String?,
+        val parts: ForecastsDayPart?,
+    ) {
+        @Serializable
+        data class ForecastsDayPart(
+            @SerialName("day_short") val dayShort: DayPart,
+            @SerialName("night_short") val nightShort: DayPart,
+        ) {
+            @Serializable
+            data class DayPart(
+                val temp: Int?,
+                val icon: String?,
+                val condition: Condition,
+            )
+        }
+    }
 
-@Serializable
-data class District(
-    var name: String?,
-)
+    @Serializable
+    data class GeoObject(
+        val district: District?,
+        val locality: Locality?,
+    ) {
+        @Serializable
+        data class District(
+            var name: String?,
+        )
 
-@Serializable
-data class Locality(
-    var name: String?,
-)
+        @Serializable
+        data class Locality(
+            var name: String?,
+        )
+    }
+}
 
-@Serializable
-data class Yesterday(
-    val temp: Int?,
-)
-
-@Serializable
-data class Fact(
-    val temp: Int?,
-    @SerialName("feels_like")
-    val feelsLike: Int?,
-    val icon: String?,
-    val condition: Condition,
-    @SerialName("wind_speed")
-    val windSpeed: Double?,
-    @SerialName("wind_dir")
-    val windDirection: String?,
-    val humidity: Int?,
-    @SerialName("pressure_mm")
-    val pressure: Int?,
-)
-
-@Serializable
-data class ForecastsDate(
-    val date: String?,
-    val parts: ForecastsDayPart?,
-)
-
-@Serializable
-data class ForecastsDayPart(
-    @SerialName("day_short")
-    val dayShort: DayPart,
-    @SerialName("night_short")
-    val nightShort: DayPart,
-)
-
-@Serializable
-data class DayPart(
-    val temp: Int?,
-    val icon: String?,
-    val condition: Condition,
-)
 
 @Serializable
 enum class Condition(
@@ -178,9 +164,8 @@ enum class Condition(
 
 }
 
-enum class WindDirectionData(
-    @SerialName("wind_dir")
-    val windDirection: String?
+enum class WindDirectionData(  //todo maybe should be deleted
+    @SerialName("wind_dir") val windDirection: String?
 ) {
     NORTH_WEST("nw"),
     NORTH("n"),

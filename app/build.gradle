@@ -1,16 +1,16 @@
 plugins {
-    id 'com.android.application'
+    id 'com.android.application' version '8.2.0'
     id 'org.jetbrains.kotlin.android'
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.8.10'
-
 }
 
 apply plugin: 'kotlinx-serialization'
-
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 android {
     namespace 'com.example.testweatherappcilation'
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         buildConfigField ("String", "ApiKey", TestWeatherApp_ApiKey)
@@ -28,18 +28,17 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-//            buildConfigField 'String', "ApiKey", TestWeatherApp_ApiKey
-//            resValue 'string', "api_key", TestWeatherApp_ApiKey
+
         }
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
     }
 
     buildFeatures {
@@ -51,22 +50,21 @@ android {
 
 
 dependencies {
-
     def ktor_version="2.3.0"
     implementation("io.ktor:ktor-client-core:$ktor_version")
     implementation("io.ktor:ktor-client-cio:$ktor_version")
     implementation("io.ktor:ktor-client-okhttp:$ktor_version")
     implementation("io.ktor:ktor-client-content-negotiation:$ktor_version")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1"
-    implementation "androidx.activity:activity-ktx:1.7.2"
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
+
+    implementation "androidx.activity:activity-ktx:1.8.2"
     implementation "com.google.android.gms:play-services-location:21.0.1"
 
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
-    implementation 'androidx.core:core-ktx:1.10.1'
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+    implementation 'androidx.core:core-ktx:1.12.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.9.0'
+    implementation 'com.google.android.material:material:1.11.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
@@ -79,4 +77,14 @@ dependencies {
 
     //SwipeRefreshlayout
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
+
+    // Moxy
+    def moxy_version="2.2.2"
+    implementation ("com.github.moxy-community:moxy:$moxy_version")
+    kapt "com.github.moxy-community:moxy-compiler:$moxy_version"
+    implementation "com.github.moxy-community:moxy-android:$moxy_version"
+//    implementation "com.github.moxy-community:moxy-app-compat:$moxy_version"
+    implementation "com.github.moxy-community:moxy-androidx:$moxy_version"
+    implementation "com.github.moxy-community:moxy-material:$moxy_version"
+    implementation "com.github.moxy-community:moxy-ktx:$moxy_version"
 }

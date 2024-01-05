@@ -1,4 +1,7 @@
-package com.example.testweatherappcilation.domain
+package com.example.testweatherappcilation.mvp.presenters
+
+import com.example.testweatherappcilation.mvp.models.WeatherEntity
+import com.example.testweatherappcilation.mvp.models.WeatherRepository
 
 class WeatherInteractor(
     private val weatherRepository: WeatherRepository

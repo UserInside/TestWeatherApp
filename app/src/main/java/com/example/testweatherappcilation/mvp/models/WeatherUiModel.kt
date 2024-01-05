@@ -1,6 +1,5 @@
-package com.example.testweatherappcilation.presentation
+package com.example.testweatherappcilation.mvp.models
 
-import android.content.res.Resources
 import kotlinx.serialization.Serializable
 
 @Serializable

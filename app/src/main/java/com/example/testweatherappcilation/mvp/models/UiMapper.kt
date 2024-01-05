@@ -1,11 +1,8 @@
-package com.example.testweatherappcilation.domain
+package com.example.testweatherappcilation.mvp.models
 
 import android.content.res.Resources
-import android.util.Log
 
 import com.example.testweatherappcilation.R
-import com.example.testweatherappcilation.presentation.WeatherUiModel
-import com.example.testweatherappcilation.presentation.WeatherUiModelForecasts
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneId

@@ -1,4 +1,4 @@
-package com.example.testweatherappcilation.presentation
+package com.example.testweatherappcilation.mvp.views
 
 
 import android.content.res.Resources
@@ -7,28 +7,20 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.testweatherappcilation.common.ContentState
-import com.example.testweatherappcilation.data.ApiToEntityMapper
-import com.example.testweatherappcilation.domain.DataStoreRepository
-import com.example.testweatherappcilation.domain.DomainToPresentationMapper
-import com.example.testweatherappcilation.domain.WeatherEntity
-import com.example.testweatherappcilation.domain.WeatherInteractor
-import io.ktor.client.network.sockets.ConnectTimeoutException
-import kotlinx.coroutines.CoroutineExceptionHandler
+import com.example.testweatherappcilation.mvp.models.ApiToEntityMapper
+import com.example.testweatherappcilation.mvp.presenters.DataStoreRepository
+import com.example.testweatherappcilation.mvp.models.DomainToPresentationMapper
+import com.example.testweatherappcilation.mvp.models.WeatherEntity
+import com.example.testweatherappcilation.mvp.models.WeatherUiModel
+import com.example.testweatherappcilation.mvp.presenters.WeatherInteractor
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import java.net.ConnectException
-import java.net.SocketTimeoutException
-import java.net.UnknownHostException
 
 class WeatherViewModel(
     dataStore: DataStore<Preferences>,
@@ -40,51 +32,51 @@ class WeatherViewModel(
     private val _stateFlow = MutableStateFlow<WeatherUiState>(WeatherUiState())
     val stateFlow: StateFlow<WeatherUiState> = _stateFlow.asStateFlow()
 
-    init {
-        viewModelScope.launch {
-            val lastShownWeather = loadLastWeatherEntity()
-            lastShownWeather?.let { savedWeather ->
-                _stateFlow.update { state ->
-                    state.copy(
-                        weatherUiModel = savedWeather,
-                        contentState = ContentState.Done,
-                    )
-                }
-            }
-        }
-    }
-
-    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        _stateFlow.update { state ->
-            state.copy(
-                contentState = if (throwable is ConnectTimeoutException
-                    || throwable is ConnectException
-                    || throwable is UnknownHostException
-                    || throwable is SocketTimeoutException
-                ) ContentState.Error.Network
-                else {
-                    ContentState.Error.Common
-                }
-            )
-        }
-    }
-
-    fun fetchData() {
-        if (_stateFlow.value.contentState == ContentState.Loading) return
-
-        _stateFlow.update { state -> state.copy(contentState = ContentState.Loading) }
-        viewModelScope.launch(exceptionHandler) {
-            val weatherEntity = getWeatherEntity(_stateFlow.value.lat, _stateFlow.value.lon)
-            val weatherUiModel = DomainToPresentationMapper.map(resources, weatherEntity)
-            saveLastWeatherEntity(weatherUiModel)
-            _stateFlow.update { state ->
-                state.copy(
-                    weatherUiModel = weatherUiModel,
-                    contentState = ContentState.Done,
-                )
-            }
-        }
-    }
+//    init {
+//        viewModelScope.launch {
+//            val lastShownWeather = loadLastWeatherEntity()
+//            lastShownWeather?.let { savedWeather ->
+//                _stateFlow.update { state ->
+//                    state.copy(
+//                        weatherUiModel = savedWeather,
+//                        contentState = ContentState.Done,
+//                    )
+//                }
+//            }
+//        }
+//    }
+//
+//    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+//        _stateFlow.update { state ->
+//            state.copy(
+//                contentState = if (throwable is ConnectTimeoutException
+//                    || throwable is ConnectException
+//                    || throwable is UnknownHostException
+//                    || throwable is SocketTimeoutException
+//                ) ContentState.Error.Network
+//                else {
+//                    ContentState.Error.Common
+//                }
+//            )
+//        }
+//    }
+//
+//    fun fetchData() {
+//        if (_stateFlow.value.contentState == ContentState.Loading) return
+//
+//        _stateFlow.update { state -> state.copy(contentState = ContentState.Loading) }
+//        viewModelScope.launch(exceptionHandler) {
+//            val weatherEntity = getWeatherEntity(_stateFlow.value.lat, _stateFlow.value.lon)
+//            val weatherUiModel = DomainToPresentationMapper.map(resources, weatherEntity)
+//            saveLastWeatherEntity(weatherUiModel)
+//            _stateFlow.update { state ->
+//                state.copy(
+//                    weatherUiModel = weatherUiModel,
+//                    contentState = ContentState.Done,
+//                )
+//            }
+//        }
+//    }
 
     suspend fun getWeatherEntity(lat: Double, lon: Double): WeatherEntity {
         val weatherEntity = weatherInteractor.fetchData(lat, lon)
@@ -96,48 +88,19 @@ class WeatherViewModel(
     }
 
     suspend fun loadLastWeatherEntity(): WeatherUiModel? {
-        return dataStoreRepository.loadLastWeatherEntity()
+        return mockData()
+//        return dataStoreRepository.loadLastWeatherEntity()
     }
-
-
-
 
     fun getWeatherByCoordinates(lat: Double, lon: Double) {
         try {
             _stateFlow.value.lat = lat
             _stateFlow.value.lon = lon
-            fetchData()
+//            fetchData()
         } catch (throwable: IllegalArgumentException) {
             Log.e("TAG", "Wrong coordinates", throwable)
         }
     }
-
-    fun getTokyoWeather() {
-        _stateFlow.value.lat = 35.6895
-        _stateFlow.value.lon = 139.692
-        fetchData()
-    }
-
-    fun getRostovWeather() {
-        _stateFlow.value.lat = 47.222078
-        _stateFlow.value.lon = 39.720358
-        fetchData()
-    }
-
-     fun getAbinskWeather() {
-        _stateFlow.value.lat = 44.86623764
-        _stateFlow.value.lon = 38.15129089
-         fetchData()
-//         viewModelScope.launch {
-//             _stateFlow.update {state ->
-//                 state.copy(
-//                     weatherUiModel = mockData(),
-//                     contentState = ContentState.Done,
-//                 )
-//             }
-//         }
-     }
-
 
     companion object {
         fun factory(

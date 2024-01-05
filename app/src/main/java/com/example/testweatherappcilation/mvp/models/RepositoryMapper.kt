@@ -1,9 +1,4 @@
-package com.example.testweatherappcilation.data
-
-import com.example.testweatherappcilation.domain.Forecasts
-import com.example.testweatherappcilation.domain.WeatherCondition
-import com.example.testweatherappcilation.domain.WeatherEntity
-import com.example.testweatherappcilation.domain.WindDirection
+package com.example.testweatherappcilation.mvp.models
 
 object ApiToEntityMapper {
     fun map(item: ActualWeather): WeatherEntity {
@@ -41,7 +36,7 @@ object ApiToEntityMapper {
         return forecastsList
     }
 
-    private fun mapWeatherCondition(from: String?) : WeatherCondition{
+    private fun mapWeatherCondition(from: String?) : WeatherCondition {
         if (from.isNullOrBlank()) return WeatherCondition.Undefined
         return when (from.lowercase()) {                            //todo lowercase !!
             "clear" -> WeatherCondition.Clear
