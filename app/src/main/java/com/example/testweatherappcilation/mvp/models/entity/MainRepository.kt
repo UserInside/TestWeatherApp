@@ -1,10 +1,10 @@
-package com.example.testweatherappcilation.mvp.models
+package com.example.testweatherappcilation.mvp.models.entity
 
 import android.content.res.Resources
 import com.example.testweatherappcilation.mvp.common.HttpClientHolder
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
+import com.example.testweatherappcilation.mvp.models.repository.ApiToEntityMapper
+import com.example.testweatherappcilation.mvp.models.repository.WeatherDataSource
+import com.example.testweatherappcilation.mvp.models.repository.WeatherRepositoryImplementation
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 

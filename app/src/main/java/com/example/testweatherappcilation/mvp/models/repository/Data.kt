@@ -1,4 +1,4 @@
-package com.example.testweatherappcilation.mvp.models
+package com.example.testweatherappcilation.mvp.models.repository
 
 import com.example.testweatherappcilation.BuildConfig
 import io.ktor.client.*

@@ -3,12 +3,12 @@
     <string name="longitude">Долгота</string>
     <string name="latitude">Широта</string>
     <string name="input_coordinates">Введите координаты</string>
-    <string name="get_weather_by_coordinates">Узнать погоду по координатам</string>
+    <string name="get_weather_by_coordinates">Показать погоду по координатам</string>
     <string name="check_cities">Посмотреть города</string>
     <string name="tokyo">Токио</string>
     <string name="rostov">Ростов</string>
     <string name="abinsk">Абинск</string>
-    <string name="get_weather_around">Узнать погоду вокруг меня</string>
+    <string name="get_weather_around">Показать погоду вокруг меня</string>
     <string name="message_location_permission_requirement">Для отображения погоды вокруг требуется разрешение определения местороложения</string>
     <string name="wrong_coordinates">Неверные координаты</string>
     <string name="location_not_idetified">Локация не определена</string>
@@ -20,7 +20,7 @@
     <string name="humidity">Влажность %d %%</string>
     <string name="wind">Ветер %1s %2$.1f м/с</string>
     <string name="feels_like">Ощущается как %d°</string>
-    <string name="actual_time_and_yesterday_temp">Сейчас %1$s Вчера в это время %2$s°</string>
+    <string name="actual_time_and_yesterday_temp">Сейчас %1$s. Вчера в это время %2$s°</string>
     <string name="condition_icon_link">https://yastatic.net/weather/i/icons/funky/dark/%1$s.svg</string>
     <string name="today">Сегодня</string>
 

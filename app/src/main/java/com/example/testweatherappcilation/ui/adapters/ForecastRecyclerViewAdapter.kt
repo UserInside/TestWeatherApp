@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.ahmadrosid.svgloader.SvgLoader
 import com.example.testweatherappcilation.R
-import com.example.testweatherappcilation.mvp.models.WeatherUiModelForecasts
+import com.example.testweatherappcilation.mvp.models.entity.WeatherUiModelForecasts
 
 
 class ForecastRecyclerViewAdapter(

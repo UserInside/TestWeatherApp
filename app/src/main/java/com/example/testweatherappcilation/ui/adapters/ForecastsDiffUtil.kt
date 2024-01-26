@@ -1,7 +1,7 @@
 package com.example.testweatherappcilation.ui.adapters
 
 import androidx.recyclerview.widget.DiffUtil
-import com.example.testweatherappcilation.mvp.models.WeatherUiModelForecasts
+import com.example.testweatherappcilation.mvp.models.entity.WeatherUiModelForecasts
 
 class ForecastsDiffUtil(
     private val oldList: List<WeatherUiModelForecasts?>?,

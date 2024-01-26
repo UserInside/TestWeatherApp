@@ -1,8 +1,10 @@
-package com.example.testweatherappcilation.mvp.models
+package com.example.testweatherappcilation.mvp.models.entity
 
 import android.content.res.Resources
 
 import com.example.testweatherappcilation.R
+import com.example.testweatherappcilation.mvp.models.repository.Forecasts
+import com.example.testweatherappcilation.mvp.models.repository.WeatherEntity
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneId

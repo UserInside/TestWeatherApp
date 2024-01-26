@@ -1,6 +1,4 @@
-package com.example.testweatherappcilation.mvp.models
-
-import com.example.testweatherappcilation.mvp.models.WeatherEntity
+package com.example.testweatherappcilation.mvp.models.repository
 
 interface WeatherRepository {
     suspend fun request(lat: Double, lon: Double) : WeatherEntity

@@ -1,11 +1,10 @@
 package com.example.testweatherappcilation.mvp.presenters
 
 import android.content.res.Resources
-import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import com.example.testweatherappcilation.mvp.models.MainRepository
-import com.example.testweatherappcilation.mvp.models.WeatherUiModel
+import com.example.testweatherappcilation.mvp.models.entity.MainRepository
+import com.example.testweatherappcilation.mvp.models.entity.WeatherUiModel
 import com.example.testweatherappcilation.mvp.views.MainActivityView
 import kotlinx.coroutines.launch
 import moxy.InjectViewState
@@ -15,101 +14,66 @@ import moxy.presenterScope
 @InjectViewState
 class MainActivityPresenter(
     dataStore: DataStore<Preferences>,
-    val resources: Resources,
+    private val resources: Resources,
 ) : MvpPresenter<MainActivityView>() {
 
     private val dataStoreRepository = DataStoreRepository(dataStore)
 
-    var model: WeatherUiModel = MainRepository(resources).repositoryModel
+    private var lat: Double = 0.0
+    private var lon: Double = 0.0
+    private var model: WeatherUiModel = WeatherUiModel()
 
     init {
         presenterScope.launch {
             val lastShownWeather = loadLastWeatherEntity()
-            lastShownWeather?.let { savedWeather ->
-                _stateFlow.update { state -> // todo continue here
-                    state.copy(
-                        weatherUiModel = savedWeather,
-                        contentState = ContentState.Done,
-                    )
-                }
-            }
+            lastShownWeather?.let {
+                viewState.showWeather(lastShownWeather)
+            } ?: viewState.showWelcome()
         }
     }
 
-
-    fun showActualWeather() = viewState.showWeather(model)
-
-    suspend fun getWeatherByCoordinates(lat: Double, lon: Double) {
+    suspend fun showWeather(lat: Double = this.lat, lon: Double = this.lon) {
         try {
-            _stateFlow.value.lat = lat
-            _stateFlow.value.lon = lon
-//            fetchData()
-
-            model = MainRepository(resources).getModel(lat, lon)
+            viewState.showLoading()
+            getWeatherByCoordinates(lat, lon)
             viewState.showWeather(model)
         } catch (throwable: IllegalArgumentException) {
-            Log.e("TAG", "Wrong coordinates", throwable)
+            viewState.showError()
         }
+    }
 
+    suspend fun getWeatherByCoordinates(lat: Double, lon: Double) {
+        this.lat = lat
+        this.lon = lon
+        model = MainRepository(resources).getModel(lat, lon)
     }
 
     suspend fun saveLastWeatherEntity(model: WeatherUiModel) {
         dataStoreRepository.saveLastWeatherEntity(model)
     }
 
-    suspend fun loadLastWeatherEntity(): WeatherUiModel? { //todo
+    suspend fun loadLastWeatherEntity(): WeatherUiModel? {
         return dataStoreRepository.loadLastWeatherEntity()
     }
 
     suspend fun getTokyoWeather() {
-        model = MainRepository(resources).getModel(35.6895, 139.692)
-        viewState.showWeather(model)
+        getWeatherByCoordinates(35.6895, 139.692)
+        showWeather()
     }
 
     suspend fun getRostovWeather() {
-        model = MainRepository(resources).getModel(47.222078, 39.720358)
-        viewState.showWeather(model)
+        getWeatherByCoordinates(47.222078, 39.720358)
+        showWeather()
     }
 
     suspend fun getAbinskWeather() {
-        model = MainRepository(resources).getModel(44.86623764, 38.15129089)
-        viewState.showWeather(model)
+        getWeatherByCoordinates(44.86623764, 38.15129089)
+        showWeather()
     }
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
-//        presenterScope.launch { }
+//        presenterScope.launch { }  //todo надо ли сюда перенести инит?
     }
-
-//    suspend fun fetchData() {
-//        val weatherUiState = WeatherUiState()
-//       // if (weatherUiState.contentState == ContentState.Loading) return //что это?
-//
-//        weatherUiState.weatherUiModel = DomainToPresentationMapper.map(
-//            resources, getWeatherEntity(
-//                weatherUiState.lat,
-//                weatherUiState.lon
-//            ))
-//        weatherUiState.contentState = ContentState.Done
-//    }
-
-//        weatherUiState.weatherUiModel = coroutineScope {
-//            val weatherEntity = getWeatherEntity(weatherUiState.lat, weatherUiState.lon)
-//            val weatherUiModel = DomainToPresentationMapper.map(resources, weatherEntity)
-////            saveLastWeatherEntity(weatherUiModel)
-//            it = { state ->
-//                state.copy(
-//                    weatherUiModel = weatherUiModel,
-//                    contentState = ContentState.Done,
-//                )
-//            }
-//        }
-//    }
-
-//    suspend fun getWeatherEntity(lat: Double, lon: Double): WeatherEntity {
-//        val weatherEntity = weatherInteractor.fetchData(lat, lon)
-//        return weatherEntity
-//    }
-
 }
 

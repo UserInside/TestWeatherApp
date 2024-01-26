@@ -150,13 +150,13 @@
                 android:layout_height="wrap_content">
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
                     <Button
                         android:id="@+id/btnGetWeatherAround"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
                         android:text="@string/get_weather_around" />
@@ -167,14 +167,16 @@
                         android:text="@string/input_coordinates" />
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal">
 
                         <EditText
                             android:id="@+id/edit_latitude"
-                            android:layout_width="150dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:layout_marginEnd="8dp"
+                            android:layout_weight="1"
                             android:autofillHints="latitudeCoordinate"
                             android:background="@drawable/border"
                             android:hint="@string/latitude"
@@ -182,9 +184,10 @@
 
                         <EditText
                             android:id="@+id/edit_longitude"
-                            android:layout_width="150dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginHorizontal="16dp"
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1"
                             android:autofillHints="longitudeCoordinate"
                             android:background="@drawable/border"
                             android:hint="@string/longitude"
@@ -193,7 +196,7 @@
 
                     <Button
                         android:id="@+id/btn_get_weather_by_coordinates"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/get_weather_by_coordinates" />
 
@@ -203,13 +206,14 @@
                         android:text="@string/check_cities" />
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
                         <Button
                             android:id="@+id/btn_tokyo"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:text="@string/tokyo" />
 
                         <Button
@@ -217,12 +221,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginHorizontal="15dp"
+                            android:layout_weight="1"
                             android:text="@string/rostov" />
 
                         <Button
                             android:id="@+id/btn_abinsk"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:text="@string/abinsk" />
 
                     </LinearLayout>

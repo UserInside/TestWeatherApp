@@ -1,4 +1,4 @@
-package com.example.testweatherappcilation.mvp.models
+package com.example.testweatherappcilation.mvp.models.entity
 
 import kotlinx.serialization.Serializable
 
