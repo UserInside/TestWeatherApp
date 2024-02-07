@@ -1,4 +1,4 @@
-package com.example.testweatherappcilation.ui.activities
+package com.example.testweatherappcilation.mvp.views.activities
 
 import android.Manifest
 import android.content.Context
@@ -26,13 +26,15 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.ahmadrosid.svgloader.SvgLoader
 import com.example.testweatherappcilation.R
 import com.example.testweatherappcilation.databinding.ActivityMainBinding
+import com.example.testweatherappcilation.mvp.models.entity.MainRepository
 import com.example.testweatherappcilation.mvp.models.entity.WeatherUiModel
 import com.example.testweatherappcilation.mvp.presenters.MainActivityPresenter
-import com.example.testweatherappcilation.ui.adapters.ForecastRecyclerViewAdapter
+import com.example.testweatherappcilation.mvp.views.adapters.ForecastRecyclerViewAdapter
 import com.example.testweatherappcilation.mvp.views.MainActivityView
 import com.google.android.gms.location.CurrentLocationRequest
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.coroutines.launch
 import moxy.MvpAppCompatActivity
@@ -47,7 +49,7 @@ class MainActivity : MvpAppCompatActivity(), MainActivityView {
 
     private val Context.dataStore: DataStore<Preferences> by preferencesDataStore("last shown weather")
 
-    private val presenter by moxyPresenter { MainActivityPresenter(dataStore, resources) }
+    private val presenter by moxyPresenter { MainActivityPresenter(dataStore, MainRepository(resources)) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,26 +62,26 @@ class MainActivity : MvpAppCompatActivity(), MainActivityView {
         binding.contentWeatherView.visibility = View.VISIBLE
 
         binding.btnGetWeatherAround.setOnClickListener {
-            if (isGPSEnable()) {
-                when {
-                    ContextCompat.checkSelfPermission(
-                        this@MainActivity, Manifest.permission.ACCESS_COARSE_LOCATION
-                    ) == PackageManager.PERMISSION_GRANTED -> {
-                        binding.contentWeatherView.visibility = View.VISIBLE
-                        getWeatherAround()
-                    }
-
-                    shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION) -> {
-                        showMessageLocationPermissionRequirement()
-                    }
-
-                    else -> {
-                        requestPermissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
-                    }
-                }
-            } else {
-                showMessageGPSRequirement()
-            }
+//            if (isGPSEnable()) {
+//                when {
+//                    ContextCompat.checkSelfPermission(
+//                        this@MainActivity, Manifest.permission.ACCESS_COARSE_LOCATION
+//                    ) == PackageManager.PERMISSION_GRANTED -> {
+//                        binding.contentWeatherView.visibility = View.VISIBLE
+//                        getWeatherAround()
+//                    }
+//
+//                    shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION) -> {
+//                        showMessageLocationPermissionRequirement()
+//                    }
+//
+//                    else -> {
+//                        requestPermissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
+//                    }
+//                }
+//            } else {
+//                showMessageGPSRequirement()
+//            }
         }
 
         binding.btnGetWeatherByCoordinates.setOnClickListener {
@@ -87,8 +89,9 @@ class MainActivity : MvpAppCompatActivity(), MainActivityView {
                 val lat = binding.editLatitude.text.toString().toDouble()
                 val lon = binding.editLongitude.text.toString().toDouble()
                 if (lat in -90.0..90.0 && lon in -180.0..180.0) {
+                    val coordinates = LatLng(lat, lon)
                     lifecycleScope.launch {
-                        presenter.showWeather(lat, lon)
+                        presenter.showWeather(coordinates)
                     }
                 } else {
                     toastWrongCoordinates()
@@ -129,15 +132,20 @@ class MainActivity : MvpAppCompatActivity(), MainActivityView {
     }
 
     override fun showLoading() {
-        binding.contentWeatherView.visibility = View.INVISIBLE
-        binding.includeErrorLayout.root.visibility = View.INVISIBLE
-        binding.includeProgressLayout.root.visibility = View.VISIBLE
+        binding.apply {
+            contentWeatherView.visibility = View.INVISIBLE
+            includeErrorLayout.root.visibility = View.INVISIBLE
+            includeProgressLayout.root.visibility = View.VISIBLE
+        }
+
     }
 
     override fun showError() {
-        binding.contentWeatherView.visibility = View.INVISIBLE
-        binding.includeErrorLayout.root.visibility = View.VISIBLE
-        binding.includeProgressLayout.root.visibility = View.INVISIBLE
+        binding.apply {
+            contentWeatherView.visibility = View.INVISIBLE
+            includeErrorLayout.root.visibility = View.VISIBLE
+            includeProgressLayout.root.visibility = View.INVISIBLE
+        }
 
         val buttonRetry = findViewById<Button>(R.id.buttonRetry)
         buttonRetry.setOnClickListener {
@@ -148,29 +156,30 @@ class MainActivity : MvpAppCompatActivity(), MainActivityView {
     }
 
     override fun showWeather(model: WeatherUiModel) {
-        binding.contentWeatherView.visibility = View.VISIBLE
-        binding.includeProgressLayout.root.visibility = View.GONE
-        binding.includeErrorLayout.root.visibility = View.GONE
+        binding.apply {
+            contentWeatherView.visibility = View.VISIBLE
+            includeProgressLayout.root.visibility = View.GONE
+            includeErrorLayout.root.visibility = View.GONE
 
-        lifecycleScope.launch { presenter.saveLastWeatherEntity(model) }
-        binding.textLocation.text = model.textLocation
-        binding.textActualTimeAndYesterdayTemp.text = model.textActualTimeAndYesterdayTemp
-        binding.textActualTemp.text = model.textActualTemp
+            textLocation.text = model.textLocation
+            textActualTimeAndYesterdayTemp.text = model.textActualTimeAndYesterdayTemp
+            textActualTemp.text = model.textActualTemp
 
-        SvgLoader.pluck().with(this@MainActivity).load(
-            getString(
-                R.string.condition_icon_link, model.icon
-            ), binding.imageCondition
-        )
+            SvgLoader.pluck().with(this@MainActivity).load(
+                getString(
+                    R.string.condition_icon_link, model.icon
+                ), imageCondition
+            )
 
-        binding.textCondition.text = model.textCondition
-        binding.textFeelsLike.text = model.textFeelsLike
-        binding.wind.text = model.textWind
-        binding.humidity.text = model.textHumidity
-        binding.pressure.text = model.textPressure
+            textCondition.text = model.textCondition
+            textFeelsLike.text = model.textFeelsLike
+            wind.text = model.textWind
+            humidity.text = model.textHumidity
+            pressure.text = model.textPressure
 
-        recyclerAdapter = ForecastRecyclerViewAdapter(model.forecasts, this@MainActivity)
-        binding.recyclerForecasts.adapter = recyclerAdapter
+            recyclerAdapter = ForecastRecyclerViewAdapter(model.forecasts, this@MainActivity)
+            recyclerForecasts.adapter = recyclerAdapter
+        }
 
     }
 
@@ -203,10 +212,7 @@ class MainActivity : MvpAppCompatActivity(), MainActivityView {
 
     private fun isGPSEnable(): Boolean {
         val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            return true
-        }
-        return false
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
     }
 
     private fun showMessageGPSRequirement() {
@@ -228,7 +234,7 @@ class MainActivity : MvpAppCompatActivity(), MainActivityView {
                 CurrentLocationRequest.Builder().build(), CancellationTokenSource().token
             ).addOnSuccessListener { location ->
                 lifecycleScope.launch {
-                    presenter.showWeather(location.latitude, location.longitude)
+                    presenter.showWeather(LatLng(location.latitude, location.longitude))
                 }
             }
         }

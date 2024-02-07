@@ -1,4 +1,4 @@
-package com.example.testweatherappcilation.ui.adapters
+package com.example.testweatherappcilation.mvp.views.adapters
 
 import androidx.appcompat.app.AppCompatActivity
 import android.content.Context

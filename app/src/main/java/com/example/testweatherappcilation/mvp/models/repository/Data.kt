@@ -1,6 +1,7 @@
 package com.example.testweatherappcilation.mvp.models.repository
 
 import com.example.testweatherappcilation.BuildConfig
+import com.google.android.gms.maps.model.LatLng
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -12,17 +13,17 @@ class WeatherRepositoryImplementation(
     private val weatherDataSource: WeatherDataSource
 ) : WeatherRepository {
 
-    override suspend fun request(lat: Double, lon: Double): WeatherEntity {
-        return ApiToEntityMapper.map(weatherDataSource.request(lat, lon))
+    override suspend fun request(coordinates: LatLng): WeatherEntity {
+        return ApiToEntityMapper.map(weatherDataSource.request(coordinates))
     }
 }
 
 class WeatherDataSource(
     val httpClient: HttpClient,
 ) {
-    suspend fun request(lat: Double, lon: Double): ActualWeather {
+    suspend fun request(coordinates: LatLng): ActualWeather {
         val apiKey: String = BuildConfig.ApiKey
-        return httpClient.get("https://api.weather.yandex.ru/v2/forecast?lat=$lat&lon=$lon") {
+        return httpClient.get("https://api.weather.yandex.ru/v2/forecast?lat=${coordinates.latitude}&lon=${coordinates.longitude}") {
             header("X-Yandex-API-Key", apiKey)
         }.body()
     }

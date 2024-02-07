@@ -5,20 +5,21 @@ import com.example.testweatherappcilation.mvp.common.HttpClientHolder
 import com.example.testweatherappcilation.mvp.models.repository.ApiToEntityMapper
 import com.example.testweatherappcilation.mvp.models.repository.WeatherDataSource
 import com.example.testweatherappcilation.mvp.models.repository.WeatherRepositoryImplementation
+import com.google.android.gms.maps.model.LatLng
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 
 class MainRepository(
     private val resources: Resources
 ) {
-    suspend fun getModel(lat: Double, lon: Double): WeatherUiModel =
+    suspend fun getModel(coordinates: LatLng): WeatherUiModel =
         DomainToPresentationMapper.map(
             resources,
             WeatherRepositoryImplementation(
                 WeatherDataSource(
                     HttpClientHolder.httpClient
                 )
-            ).request(lat, lon)
+            ).request(coordinates)
         )
 
 

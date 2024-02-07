@@ -1,4 +1,4 @@
-package com.example.testweatherappcilation.ui.adapters
+package com.example.testweatherappcilation.mvp.views.adapters
 
 import androidx.recyclerview.widget.DiffUtil
 import com.example.testweatherappcilation.mvp.models.entity.WeatherUiModelForecasts

@@ -83,8 +83,10 @@ dependencies {
     implementation ("com.github.moxy-community:moxy:$moxy_version")
     kapt "com.github.moxy-community:moxy-compiler:$moxy_version"
     implementation "com.github.moxy-community:moxy-android:$moxy_version"
-//    implementation "com.github.moxy-community:moxy-app-compat:$moxy_version"
     implementation "com.github.moxy-community:moxy-androidx:$moxy_version"
     implementation "com.github.moxy-community:moxy-material:$moxy_version"
     implementation "com.github.moxy-community:moxy-ktx:$moxy_version"
+
+    //maps
+    implementation 'com.google.android.gms:play-services-maps:18.2.0'
 }
