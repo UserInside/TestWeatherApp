@@ -1,4 +1,4 @@
-package com.example.testweatherappcilation.mvp.views
+package com.example.testweatherappcilation.mvp.views.activities
 
 import com.example.testweatherappcilation.mvp.models.entity.WeatherUiModel
 import moxy.MvpView
@@ -11,4 +11,6 @@ interface MainActivityView : MvpView {
     fun showLoading()
     fun showError()
     fun showWelcome()
+    fun requestLocationPermission()
+
 }

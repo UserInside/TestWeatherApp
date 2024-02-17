@@ -19,7 +19,7 @@ class WeatherRepositoryImplementation(
 }
 
 class WeatherDataSource(
-    val httpClient: HttpClient,
+    private val httpClient: HttpClient,
 ) {
     suspend fun request(coordinates: LatLng): ActualWeather {
         val apiKey: String = BuildConfig.ApiKey

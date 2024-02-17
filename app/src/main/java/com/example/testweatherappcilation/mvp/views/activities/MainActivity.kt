@@ -2,21 +2,13 @@ package com.example.testweatherappcilation.mvp.views.activities
 
 import android.Manifest
 import android.content.Context
-import android.content.DialogInterface
-import android.content.Intent
-import android.content.pm.PackageManager
-
 import android.content.pm.PackageManager.PERMISSION_GRANTED
-import android.location.LocationManager
-
 import android.os.Bundle
-import android.provider.Settings
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -30,12 +22,7 @@ import com.example.testweatherappcilation.mvp.models.entity.MainRepository
 import com.example.testweatherappcilation.mvp.models.entity.WeatherUiModel
 import com.example.testweatherappcilation.mvp.presenters.MainActivityPresenter
 import com.example.testweatherappcilation.mvp.views.adapters.ForecastRecyclerViewAdapter
-import com.example.testweatherappcilation.mvp.views.MainActivityView
-import com.google.android.gms.location.CurrentLocationRequest
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.coroutines.launch
 import moxy.MvpAppCompatActivity
 import moxy.ktx.moxyPresenter
@@ -43,45 +30,47 @@ import moxy.ktx.moxyPresenter
 class MainActivity : MvpAppCompatActivity(), MainActivityView {
 
     private lateinit var binding: ActivityMainBinding
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
     private lateinit var recyclerAdapter: ForecastRecyclerViewAdapter
 
     private val Context.dataStore: DataStore<Preferences> by preferencesDataStore("last shown weather")
 
-    private val presenter by moxyPresenter { MainActivityPresenter(dataStore, MainRepository(resources)) }
+    private val presenter by moxyPresenter {
+        MainActivityPresenter(dataStore, MainRepository(resources),this)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        requestPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) {
+            if (ContextCompat.checkSelfPermission(
+                    this@MainActivity, Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PERMISSION_GRANTED
+            ) {
+                lifecycleScope.launch {
+                    presenter.updateLocation()
+                }
+            } else {
+                Toast.makeText(
+                    this@MainActivity,
+                    getString(R.string.location_access_denied),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        requestLocationPermission()
 
         binding.contentWeatherView.visibility = View.VISIBLE
 
         binding.btnGetWeatherAround.setOnClickListener {
-//            if (isGPSEnable()) {
-//                when {
-//                    ContextCompat.checkSelfPermission(
-//                        this@MainActivity, Manifest.permission.ACCESS_COARSE_LOCATION
-//                    ) == PackageManager.PERMISSION_GRANTED -> {
-//                        binding.contentWeatherView.visibility = View.VISIBLE
-//                        getWeatherAround()
-//                    }
-//
-//                    shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION) -> {
-//                        showMessageLocationPermissionRequirement()
-//                    }
-//
-//                    else -> {
-//                        requestPermissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
-//                    }
-//                }
-//            } else {
-//                showMessageGPSRequirement()
-//            }
+            binding.contentWeatherView.visibility = View.VISIBLE
+            lifecycleScope.launch {
+                presenter.updateLocation()
+            }
         }
 
         binding.btnGetWeatherByCoordinates.setOnClickListener {
@@ -103,17 +92,17 @@ class MainActivity : MvpAppCompatActivity(), MainActivityView {
 
         binding.btnTokyo.setOnClickListener {
             lifecycleScope.launch {
-                presenter.getTokyoWeather()
+                presenter.showWeather(LatLng(35.6895, 139.692))
             }
         }
         binding.btnRostov.setOnClickListener {
             lifecycleScope.launch {
-                presenter.getRostovWeather()
+                presenter.showWeather(LatLng(47.222078, 39.720358))
             }
         }
         binding.btnAbinsk.setOnClickListener {
             lifecycleScope.launch {
-                presenter.getAbinskWeather()
+                presenter.showWeather(LatLng(44.86623764, 38.15129089))
             }
         }
 
@@ -149,7 +138,7 @@ class MainActivity : MvpAppCompatActivity(), MainActivityView {
 
         val buttonRetry = findViewById<Button>(R.id.buttonRetry)
         buttonRetry.setOnClickListener {
-            lifecycleScope.launch{
+            lifecycleScope.launch {
                 presenter.showWeather()
             }
         }
@@ -183,61 +172,8 @@ class MainActivity : MvpAppCompatActivity(), MainActivityView {
 
     }
 
-    private fun requestLocationPermission() {
-        requestPermissionLauncher = registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) {
-            if (ContextCompat.checkSelfPermission(
-                    this@MainActivity, Manifest.permission.ACCESS_COARSE_LOCATION
-                ) == PERMISSION_GRANTED
-            ) {
-                getWeatherAround()
-            } else {
-                Toast.makeText(
-                    this@MainActivity,
-                    getString(R.string.location_access_denied),
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
-    }
-
-    private fun showMessageLocationPermissionRequirement() {
-        AlertDialog.Builder(this@MainActivity)
-            .setMessage(getString(R.string.message_location_permission_requirement))
-            .setPositiveButton(getString(R.string.button_ok)) { _: DialogInterface, _: Int ->
-                requestPermissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
-            }.setNegativeButton(getString(R.string.button_cancel), null).create().show()
-    }
-
-    private fun isGPSEnable(): Boolean {
-        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-    }
-
-    private fun showMessageGPSRequirement() {
-        AlertDialog.Builder(this@MainActivity).setMessage(getString(R.string.gps_turn_on))
-            .setPositiveButton(getString(R.string.button_ok)) { _: DialogInterface, _: Int ->
-                startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
-                requestLocationPermission()
-            }.setNegativeButton(getString(R.string.button_cancel), null).create().show()
-    }
-
-    private fun getWeatherAround() {
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this@MainActivity)
-
-        if (ContextCompat.checkSelfPermission(
-                this@MainActivity, Manifest.permission.ACCESS_COARSE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            fusedLocationClient.getCurrentLocation(
-                CurrentLocationRequest.Builder().build(), CancellationTokenSource().token
-            ).addOnSuccessListener { location ->
-                lifecycleScope.launch {
-                    presenter.showWeather(LatLng(location.latitude, location.longitude))
-                }
-            }
-        }
+    override fun requestLocationPermission() {
+        requestPermissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
     }
 
     private fun toastWrongCoordinates() {
