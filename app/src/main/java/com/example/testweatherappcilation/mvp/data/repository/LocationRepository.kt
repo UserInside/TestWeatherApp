@@ -1,4 +1,4 @@
-package com.example.testweatherappcilation.mvp.models.repository
+package com.example.testweatherappcilation.mvp.data.repository
 
 import android.Manifest
 import android.app.Activity
@@ -14,7 +14,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.core.content.ContextCompat.getString
 import com.example.testweatherappcilation.R
-import com.example.testweatherappcilation.mvp.presenters.MainActivityPresenter
+import com.example.testweatherappcilation.mvp.ui.presenter.MainActivityPresenter
 import com.google.android.gms.location.CurrentLocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng

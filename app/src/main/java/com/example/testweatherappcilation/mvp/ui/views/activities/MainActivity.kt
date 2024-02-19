@@ -1,4 +1,4 @@
-package com.example.testweatherappcilation.mvp.views.activities
+package com.example.testweatherappcilation.mvp.ui.views.activities
 
 import android.Manifest
 import android.content.Context
@@ -18,10 +18,10 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.ahmadrosid.svgloader.SvgLoader
 import com.example.testweatherappcilation.R
 import com.example.testweatherappcilation.databinding.ActivityMainBinding
-import com.example.testweatherappcilation.mvp.models.entity.MainRepository
-import com.example.testweatherappcilation.mvp.models.entity.WeatherUiModel
-import com.example.testweatherappcilation.mvp.presenters.MainActivityPresenter
-import com.example.testweatherappcilation.mvp.views.adapters.ForecastRecyclerViewAdapter
+import com.example.testweatherappcilation.mvp.data.repository.MainRepository
+import com.example.testweatherappcilation.mvp.data.model.WeatherUiModel
+import com.example.testweatherappcilation.mvp.ui.presenter.MainActivityPresenter
+import com.example.testweatherappcilation.mvp.ui.views.adapters.ForecastRecyclerViewAdapter
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.launch
 import moxy.MvpAppCompatActivity
@@ -34,7 +34,6 @@ class MainActivity : MvpAppCompatActivity(), MainActivityView {
     private lateinit var recyclerAdapter: ForecastRecyclerViewAdapter
 
     private val Context.dataStore: DataStore<Preferences> by preferencesDataStore("last shown weather")
-
     private val presenter by moxyPresenter {
         MainActivityPresenter(dataStore, MainRepository(resources),this)
     }

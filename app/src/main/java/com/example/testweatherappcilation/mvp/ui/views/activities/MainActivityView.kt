@@ -1,6 +1,6 @@
-package com.example.testweatherappcilation.mvp.views.activities
+package com.example.testweatherappcilation.mvp.ui.views.activities
 
-import com.example.testweatherappcilation.mvp.models.entity.WeatherUiModel
+import com.example.testweatherappcilation.mvp.data.model.WeatherUiModel
 import moxy.MvpView
 import moxy.viewstate.strategy.AddToEndSingleTagStrategy
 import moxy.viewstate.strategy.StateStrategyType

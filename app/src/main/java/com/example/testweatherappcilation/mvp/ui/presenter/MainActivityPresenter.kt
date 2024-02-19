@@ -1,12 +1,12 @@
-package com.example.testweatherappcilation.mvp.presenters
+package com.example.testweatherappcilation.mvp.ui.presenter
 
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import com.example.testweatherappcilation.mvp.models.entity.MainRepository
-import com.example.testweatherappcilation.mvp.models.repository.DataStoreRepository
-import com.example.testweatherappcilation.mvp.models.repository.LocationRepository
-import com.example.testweatherappcilation.mvp.views.activities.MainActivityView
+import com.example.testweatherappcilation.mvp.data.repository.MainRepository
+import com.example.testweatherappcilation.mvp.ui.views.activities.MainActivityView
+import com.example.testweatherappcilation.mvp.data.repository.DataStoreRepository
+import com.example.testweatherappcilation.mvp.data.repository.LocationRepository
 import kotlinx.coroutines.launch
 import moxy.InjectViewState
 import moxy.MvpPresenter
@@ -34,6 +34,7 @@ class MainActivityPresenter(
             }
         }
     }
+    //todo сделать загрузку без нулдей
 
     suspend fun showWeather(coordinates: LatLng = this.coordinates) {
         try {

@@ -1,4 +1,10 @@
-package com.example.testweatherappcilation.mvp.models.repository
+package com.example.testweatherappcilation.mvp.data.mapper
+
+import com.example.testweatherappcilation.mvp.data.model.ActualWeather
+import com.example.testweatherappcilation.mvp.data.model.Forecasts
+import com.example.testweatherappcilation.mvp.data.model.WeatherCondition
+import com.example.testweatherappcilation.mvp.data.model.WeatherEntity
+import com.example.testweatherappcilation.mvp.data.model.WindDirection
 
 object ApiToEntityMapper {
     fun map(item: ActualWeather): WeatherEntity {

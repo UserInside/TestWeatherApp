@@ -1,13 +1,12 @@
-package com.example.testweatherappcilation.mvp.models.entity
+package com.example.testweatherappcilation.mvp.data.repository
 
 import android.content.res.Resources
 import com.example.testweatherappcilation.mvp.common.HttpClientHolder
-import com.example.testweatherappcilation.mvp.models.repository.ApiToEntityMapper
-import com.example.testweatherappcilation.mvp.models.repository.WeatherDataSource
-import com.example.testweatherappcilation.mvp.models.repository.WeatherRepositoryImplementation
+import com.example.testweatherappcilation.mvp.common.WeatherDataSource
+import com.example.testweatherappcilation.mvp.common.WeatherRepositoryImplementation
+import com.example.testweatherappcilation.mvp.data.mapper.DomainToPresentationMapper
+import com.example.testweatherappcilation.mvp.data.model.WeatherUiModel
 import com.google.android.gms.maps.model.LatLng
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.json.Json
 
 class MainRepository(
     private val resources: Resources
