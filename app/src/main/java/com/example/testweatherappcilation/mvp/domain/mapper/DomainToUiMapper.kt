@@ -1,12 +1,12 @@
-package com.example.testweatherappcilation.mvp.data.mapper
+package com.example.testweatherappcilation.mvp.domain.mapper
 
 import android.content.res.Resources
 
 import com.example.testweatherappcilation.R
-import com.example.testweatherappcilation.mvp.data.model.Forecasts
-import com.example.testweatherappcilation.mvp.data.model.WeatherEntity
-import com.example.testweatherappcilation.mvp.data.model.WeatherUiModel
-import com.example.testweatherappcilation.mvp.data.model.WeatherUiModelForecasts
+import com.example.testweatherappcilation.mvp.domain.entity.Forecasts
+import com.example.testweatherappcilation.mvp.domain.entity.WeatherEntity
+import com.example.testweatherappcilation.mvp.domain.entity.WeatherUiModel
+import com.example.testweatherappcilation.mvp.domain.entity.WeatherUiModelForecasts
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneId

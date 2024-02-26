@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ActualWeather(
+data class WeatherResponseModel(
     val info: Info?,
     val yesterday: Yesterday?,
     val fact: Fact?,

@@ -1,10 +1,10 @@
-package com.example.testweatherappcilation.mvp.common
+package com.example.testweatherappcilation.mvp.data
 
 import com.example.testweatherappcilation.BuildConfig
-import com.example.testweatherappcilation.mvp.data.model.ActualWeather
-import com.example.testweatherappcilation.mvp.data.model.WeatherEntity
 import com.example.testweatherappcilation.mvp.data.mapper.ApiToEntityMapper
-import com.example.testweatherappcilation.mvp.data.repository.WeatherRepository
+import com.example.testweatherappcilation.mvp.data.model.WeatherResponseModel
+import com.example.testweatherappcilation.mvp.domain.entity.WeatherEntity
+import com.example.testweatherappcilation.mvp.domain.repository.WeatherRepository
 import com.google.android.gms.maps.model.LatLng
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -23,7 +23,7 @@ class WeatherRepositoryImplementation(
 class WeatherDataSource(
     private val httpClient: HttpClient,
 ) {
-    suspend fun request(coordinates: LatLng): ActualWeather {
+    suspend fun request(coordinates: LatLng): WeatherResponseModel {
         val apiKey: String = BuildConfig.ApiKey
         return httpClient.get("https://api.weather.yandex.ru/v2/forecast?lat=${coordinates.latitude}&lon=${coordinates.longitude}") {
             header("X-Yandex-API-Key", apiKey)

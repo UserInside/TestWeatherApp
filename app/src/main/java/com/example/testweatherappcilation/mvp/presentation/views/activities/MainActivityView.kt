@@ -1,6 +1,6 @@
-package com.example.testweatherappcilation.mvp.ui.views.activities
+package com.example.testweatherappcilation.mvp.presentation.views.activities
 
-import com.example.testweatherappcilation.mvp.data.model.WeatherUiModel
+import com.example.testweatherappcilation.mvp.domain.entity.WeatherUiModel
 import moxy.MvpView
 import moxy.viewstate.strategy.AddToEndSingleTagStrategy
 import moxy.viewstate.strategy.StateStrategyType
@@ -12,5 +12,5 @@ interface MainActivityView : MvpView {
     fun showError()
     fun showWelcome()
     fun requestLocationPermission()
-
+    fun toastLocationAccessDenied()
 }

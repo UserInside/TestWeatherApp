@@ -1,13 +1,13 @@
 package com.example.testweatherappcilation.mvp.data.mapper
 
-import com.example.testweatherappcilation.mvp.data.model.ActualWeather
-import com.example.testweatherappcilation.mvp.data.model.Forecasts
+import com.example.testweatherappcilation.mvp.data.model.WeatherResponseModel
+import com.example.testweatherappcilation.mvp.domain.entity.Forecasts
 import com.example.testweatherappcilation.mvp.data.model.WeatherCondition
-import com.example.testweatherappcilation.mvp.data.model.WeatherEntity
+import com.example.testweatherappcilation.mvp.domain.entity.WeatherEntity
 import com.example.testweatherappcilation.mvp.data.model.WindDirection
 
 object ApiToEntityMapper {
-    fun map(item: ActualWeather): WeatherEntity {
+    fun map(item: WeatherResponseModel): WeatherEntity {
         return WeatherEntity(
             timeZoneName = item.info?.tzinfo?.name ?: "",
             yesterdayTemp = item.yesterday?.temp ?: 0,
@@ -26,7 +26,7 @@ object ApiToEntityMapper {
         )
     }
 
-    private fun mapForecasts(item: ActualWeather): List<Forecasts> {
+    private fun mapForecasts(item: WeatherResponseModel): List<Forecasts> {
         val forecastsList = mutableListOf<Forecasts>()
         for (i in 0 until (item.forecasts?.size ?: 0)) {
             forecastsList.add(
@@ -44,7 +44,7 @@ object ApiToEntityMapper {
 
     private fun mapWeatherCondition(from: String?) : WeatherCondition {
         if (from.isNullOrBlank()) return WeatherCondition.Undefined
-        return when (from.lowercase()) {                            //todo lowercase !!
+        return when (from.lowercase()) {
             "clear" -> WeatherCondition.Clear
             "partlycloudy" -> WeatherCondition.PartlyCloudy
             "cloudy" -> WeatherCondition.Cloudy

@@ -1,4 +1,4 @@
-package com.example.testweatherappcilation.mvp.ui.views.adapters
+package com.example.testweatherappcilation.mvp.presentation.views.adapters
 
 import androidx.appcompat.app.AppCompatActivity
 import android.content.Context
@@ -11,8 +11,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.ahmadrosid.svgloader.SvgLoader
 import com.example.testweatherappcilation.R
-import com.example.testweatherappcilation.mvp.data.model.WeatherUiModelForecasts
-
+import com.example.testweatherappcilation.mvp.domain.entity.WeatherUiModelForecasts
 
 class ForecastRecyclerViewAdapter(
     val forecasts: List<WeatherUiModelForecasts?>?,
@@ -55,7 +54,7 @@ class ForecastRecyclerViewAdapter(
         return forecasts?.size ?: 0
     }
 
-    fun updateList(newList: List<WeatherUiModelForecasts>) {    //todo куда это вставить?
+    fun updateList(newList: List<WeatherUiModelForecasts>) {
         val forecastDiffUtil = ForecastsDiffUtil(oldList, newList)
         val diffResult = DiffUtil.calculateDiff(forecastDiffUtil)
         oldList = newList

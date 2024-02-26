@@ -1,9 +1,11 @@
-package com.example.testweatherappcilation.mvp.data.repository
+package com.example.testweatherappcilation.mvp.domain.repository
 
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.first
 

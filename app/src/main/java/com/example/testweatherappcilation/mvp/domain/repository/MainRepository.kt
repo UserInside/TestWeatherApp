@@ -1,11 +1,11 @@
-package com.example.testweatherappcilation.mvp.data.repository
+package com.example.testweatherappcilation.mvp.domain.repository
 
 import android.content.res.Resources
 import com.example.testweatherappcilation.mvp.common.HttpClientHolder
-import com.example.testweatherappcilation.mvp.common.WeatherDataSource
-import com.example.testweatherappcilation.mvp.common.WeatherRepositoryImplementation
-import com.example.testweatherappcilation.mvp.data.mapper.DomainToPresentationMapper
-import com.example.testweatherappcilation.mvp.data.model.WeatherUiModel
+import com.example.testweatherappcilation.mvp.data.WeatherDataSource
+import com.example.testweatherappcilation.mvp.data.WeatherRepositoryImplementation
+import com.example.testweatherappcilation.mvp.domain.mapper.DomainToPresentationMapper
+import com.example.testweatherappcilation.mvp.domain.entity.WeatherUiModel
 import com.google.android.gms.maps.model.LatLng
 
 class MainRepository(

@@ -1,5 +1,7 @@
-package com.example.testweatherappcilation.mvp.data.model
+package com.example.testweatherappcilation.mvp.domain.entity
 
+import com.example.testweatherappcilation.mvp.data.model.WeatherCondition
+import com.example.testweatherappcilation.mvp.data.model.WindDirection
 import kotlinx.serialization.Serializable
 
 @Serializable

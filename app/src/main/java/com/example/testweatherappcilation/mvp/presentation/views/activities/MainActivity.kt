@@ -1,4 +1,4 @@
-package com.example.testweatherappcilation.mvp.ui.views.activities
+package com.example.testweatherappcilation.mvp.presentation.views.activities
 
 import android.Manifest
 import android.content.Context
@@ -18,10 +18,12 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.ahmadrosid.svgloader.SvgLoader
 import com.example.testweatherappcilation.R
 import com.example.testweatherappcilation.databinding.ActivityMainBinding
-import com.example.testweatherappcilation.mvp.data.repository.MainRepository
-import com.example.testweatherappcilation.mvp.data.model.WeatherUiModel
-import com.example.testweatherappcilation.mvp.ui.presenter.MainActivityPresenter
-import com.example.testweatherappcilation.mvp.ui.views.adapters.ForecastRecyclerViewAdapter
+import com.example.testweatherappcilation.mvp.domain.repository.MainRepository
+import com.example.testweatherappcilation.mvp.domain.entity.WeatherUiModel
+import com.example.testweatherappcilation.mvp.domain.repository.DataStoreRepository
+import com.example.testweatherappcilation.mvp.domain.repository.LocationRepositoryImpl
+import com.example.testweatherappcilation.mvp.presentation.presenter.MainActivityPresenter
+import com.example.testweatherappcilation.mvp.presentation.views.adapters.ForecastRecyclerViewAdapter
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.launch
 import moxy.MvpAppCompatActivity
@@ -35,40 +37,25 @@ class MainActivity : MvpAppCompatActivity(), MainActivityView {
 
     private val Context.dataStore: DataStore<Preferences> by preferencesDataStore("last shown weather")
     private val presenter by moxyPresenter {
-        MainActivityPresenter(dataStore, MainRepository(resources),this)
+        MainActivityPresenter(
+            DataStoreRepository(dataStore),
+            MainRepository(resources),
+            LocationRepositoryImpl(this),
+        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        requestPermissionLauncher = registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) {
-            if (ContextCompat.checkSelfPermission(
-                    this@MainActivity, Manifest.permission.ACCESS_COARSE_LOCATION
-                ) == PERMISSION_GRANTED
-            ) {
-                lifecycleScope.launch {
-                    presenter.updateLocation()
-                }
-            } else {
-                Toast.makeText(
-                    this@MainActivity,
-                    getString(R.string.location_access_denied),
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
+        requestPermissionLauncher = requestPermissionLauncher()
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.contentWeatherView.visibility = View.VISIBLE
-
         binding.btnGetWeatherAround.setOnClickListener {
-            binding.contentWeatherView.visibility = View.VISIBLE
             lifecycleScope.launch {
-                presenter.updateLocation()
+                presenter.showWeatherAround()
+                binding.contentWeatherView.visibility = View.VISIBLE
             }
         }
 
@@ -125,7 +112,6 @@ class MainActivity : MvpAppCompatActivity(), MainActivityView {
             includeErrorLayout.root.visibility = View.INVISIBLE
             includeProgressLayout.root.visibility = View.VISIBLE
         }
-
     }
 
     override fun showError() {
@@ -168,7 +154,6 @@ class MainActivity : MvpAppCompatActivity(), MainActivityView {
             recyclerAdapter = ForecastRecyclerViewAdapter(model.forecasts, this@MainActivity)
             recyclerForecasts.adapter = recyclerAdapter
         }
-
     }
 
     override fun requestLocationPermission() {
@@ -177,13 +162,42 @@ class MainActivity : MvpAppCompatActivity(), MainActivityView {
 
     private fun toastWrongCoordinates() {
         Toast.makeText(
-            this@MainActivity, getString(R.string.wrong_coordinates), Toast.LENGTH_LONG
+            this@MainActivity, getString(R.string.wrong_coordinates),
+            Toast.LENGTH_LONG
+        ).show()
+    }
+
+    override fun toastLocationAccessDenied() {
+        Toast.makeText(this@MainActivity,
+            getString(R.string.location_access_denied),
+            Toast.LENGTH_SHORT
         ).show()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         SvgLoader.pluck().close()
+    }
+
+    private fun requestPermissionLauncher(): ActivityResultLauncher<String> {
+        return registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) {
+            if (ContextCompat.checkSelfPermission(
+                    this@MainActivity, Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PERMISSION_GRANTED
+            ) {
+                lifecycleScope.launch {
+                    presenter.showWeatherAround()
+                }
+            } else {
+                Toast.makeText(
+                    this@MainActivity,
+                    getString(R.string.location_access_denied),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
     }
 
 }
