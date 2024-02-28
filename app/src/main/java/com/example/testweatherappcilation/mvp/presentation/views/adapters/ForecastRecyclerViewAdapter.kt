@@ -1,8 +1,7 @@
-package com.example.testweatherappcilation.presentation
+package com.example.testweatherappcilation.mvp.presentation.views.adapters
 
-import android.app.Activity
+import androidx.appcompat.app.AppCompatActivity
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,11 +11,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.ahmadrosid.svgloader.SvgLoader
 import com.example.testweatherappcilation.R
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.time.format.TextStyle
-import java.util.Locale
-
+import com.example.testweatherappcilation.mvp.domain.entity.WeatherUiModelForecasts
 
 class ForecastRecyclerViewAdapter(
     val forecasts: List<WeatherUiModelForecasts?>?,
@@ -47,7 +42,7 @@ class ForecastRecyclerViewAdapter(
         holder.textDate.text = item?.forecastsDate
         holder.imageCondition.let {
             SvgLoader.pluck()
-                .with(mContext as Activity)
+                .with(mContext as AppCompatActivity)
                 .load("https://yastatic.net/weather/i/icons/funky/dark/${item?.forecastsIcon}.svg", it)
         }
         holder.textDayTemp.text = item?.forecastsTempDay
@@ -59,7 +54,7 @@ class ForecastRecyclerViewAdapter(
         return forecasts?.size ?: 0
     }
 
-    fun updateList(newList: List<WeatherUiModelForecasts>) {    //todo куда это вставить?
+    fun updateList(newList: List<WeatherUiModelForecasts>) {
         val forecastDiffUtil = ForecastsDiffUtil(oldList, newList)
         val diffResult = DiffUtil.calculateDiff(forecastDiffUtil)
         oldList = newList

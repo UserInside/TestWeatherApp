@@ -1,31 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
 
     android:id="@+id/swipeRefresh"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".presentation.MainActivity">
+    tools:context=".mvp.presentation.views.activities.MainActivity">
 
-        <ScrollView
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:padding="12dp"            >
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-            <LinearLayout
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:paddingBottom="12dp">
 
-                <FrameLayout
+                <LinearLayout
                     android:id="@+id/contentWeatherView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="12dp">
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/text_location"
+                        style="@style/textPrimaryBold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        />
+
+                    <TextView
+                        android:id="@+id/text_actual_time_and_yesterday_temp"
+                        style="@style/textPrimaryThin"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="32dp"
+                        />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingBottom="32dp">
+
+                        <TextView
+                            android:id="@+id/text_actual_temp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="48sp" />
+
+
+                        <ImageView
+                            android:id="@+id/image_condition"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_marginHorizontal="8dp" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/text_condition"
+                                style="@style/textPrimaryBold"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                />
+
+                            <TextView
+                                android:id="@+id/text_feels_like"
+                                style="@style/textPrimaryThin"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                />
+                        </LinearLayout>
+
+                    </LinearLayout>
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -33,203 +93,148 @@
                         android:orientation="vertical">
 
                         <TextView
-                            android:id="@+id/text_location"
-                            style="@style/textPrimaryBold"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Район, город" />
-
-                        <TextView
-                            android:id="@+id/text_actual_time_and_yesterday_temp"
+                            android:id="@+id/wind"
                             style="@style/textPrimaryThin"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:paddingBottom="32dp"
-                            android:text="сейчас время. вчера в это время темп" />
+                            />
 
-                        <LinearLayout
+                        <TextView
+                            android:id="@+id/humidity"
+                            style="@style/textPrimaryThin"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:paddingBottom="32dp">
+                            />
 
-                            <TextView
-                                android:id="@+id/text_actual_temp"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="+15"
-                                android:textSize="48sp" />
+                        <TextView
+                            android:id="@+id/pressure"
+                            style="@style/textPrimaryThin"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingBottom="6dp"
+                            />
 
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="2dp"
+                            android:background="@android:color/secondary_text_light" />
 
-                            <ImageView
-                                android:id="@+id/image_condition"
-                                android:layout_width="60dp"
-                                android:layout_height="60dp"
-                                android:layout_marginHorizontal="8dp" />
-
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:id="@+id/text_condition"
-                                    style="@style/textPrimaryBold"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Облачно" />
-
-                                <TextView
-                                    android:id="@+id/text_feels_like"
-                                    style="@style/textPrimaryThin"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Ощущается " />
-                            </LinearLayout>
-
-                        </LinearLayout>
-
-                        <LinearLayout
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/recycler_forecasts"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical">
+                            android:orientation="horizontal"
+                            android:paddingTop="6dp"
+                            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager">
 
-                            <TextView
-                                android:id="@+id/wind"
-                                style="@style/textPrimaryThin"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="wind" />
-
-                            <TextView
-                                android:id="@+id/humidity"
-                                style="@style/textPrimaryThin"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="humidity" />
-
-                            <TextView
-                                android:id="@+id/pressure"
-                                style="@style/textPrimaryThin"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:paddingBottom="6dp"
-                                android:text="pressure" />
-
-                            <View
-                                android:layout_width="match_parent"
-                                android:layout_height="2dp"
-                                android:background="@android:color/secondary_text_light" />
-
-                            <androidx.recyclerview.widget.RecyclerView
-                                android:id="@+id/recycler_forecasts"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="horizontal"
-                                android:paddingTop="6dp"
-                                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager">
-
-                            </androidx.recyclerview.widget.RecyclerView>
-                        </LinearLayout>
+                        </androidx.recyclerview.widget.RecyclerView>
                     </LinearLayout>
+                </LinearLayout>
 
-                    <include
-                        android:id="@+id/includeProgressLayout"
-                        layout="@layout/progress_layout"
-                        android:visibility="gone" />
+                <include
+                    android:id="@+id/includeProgressLayout"
+                    layout="@layout/progress_layout"
+                    android:visibility="gone" />
 
-                    <include
-                        android:id="@+id/includeErrorLayout"
-                        layout="@layout/error_layout"
-                        android:visibility="gone" />
-                </FrameLayout>
+                <include
+                    android:id="@+id/includeErrorLayout"
+                    layout="@layout/error_layout"
+                    android:visibility="gone" />
 
-                <FrameLayout
-                    android:id="@+id/frame_control"
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/frame_control"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
-                    <LinearLayout
+                    <Button
+                        android:id="@+id/btnGetWeatherAround"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:text="@string/get_weather_around" />
+
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical">
+                        android:text="@string/input_coordinates" />
 
-                        <Button
-                            android:id="@+id/btnGetWeatherAround"
-                            android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <EditText
+                            android:id="@+id/edit_latitude"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="16dp"
-                            android:text="@string/get_weather_around" />
+                            android:layout_marginEnd="8dp"
+                            android:layout_weight="1"
+                            android:autofillHints="latitudeCoordinate"
+                            android:background="@drawable/border"
+                            android:hint="@string/latitude"
+                            android:inputType="numberDecimal" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
+                        <EditText
+                            android:id="@+id/edit_longitude"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/input_coordinates" />
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal">
-
-                            <EditText
-                                android:id="@+id/edit_latitude"
-                                android:layout_width="150dp"
-                                android:layout_height="wrap_content"
-                                android:autofillHints="latitudeCoordinate"
-                                android:background="@drawable/border"
-                                android:hint="@string/latitude"
-                                android:inputType="numberDecimal" />
-
-                            <EditText
-                                android:id="@+id/edit_longitude"
-                                android:layout_width="150dp"
-                                android:layout_height="wrap_content"
-                                android:layout_marginHorizontal="16dp"
-                                android:autofillHints="longitudeCoordinate"
-                                android:background="@drawable/border"
-                                android:hint="@string/longitude"
-                                android:inputType="numberDecimal" />
-                        </LinearLayout>
-
-                        <Button
-                            android:id="@+id/btn_get_weather_by_coordinates"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/get_weather_by_coordinates" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/check_cities" />
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content">
-
-                            <Button
-                                android:id="@+id/btn_tokyo"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/tokyo" />
-
-                            <Button
-                                android:id="@+id/btn_rostov"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginHorizontal="15dp"
-                                android:text="@string/rostov" />
-
-                            <Button
-                                android:id="@+id/btn_abinsk"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/abinsk" />
-
-                        </LinearLayout>
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1"
+                            android:autofillHints="longitudeCoordinate"
+                            android:background="@drawable/border"
+                            android:hint="@string/longitude"
+                            android:inputType="numberDecimal" />
                     </LinearLayout>
-                </FrameLayout>
-            </LinearLayout>
-        </ScrollView>
+
+                    <Button
+                        android:id="@+id/btn_get_weather_by_coordinates"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/get_weather_by_coordinates" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/check_cities" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <Button
+                            android:id="@+id/btn_tokyo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/tokyo" />
+
+                        <Button
+                            android:id="@+id/btn_rostov"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="15dp"
+                            android:layout_weight="1"
+                            android:text="@string/rostov" />
+
+                        <Button
+                            android:id="@+id/btn_abinsk"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/abinsk" />
+
+                    </LinearLayout>
+                </LinearLayout>
+            </FrameLayout>
+        </LinearLayout>
+    </ScrollView>
 
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 

@@ -1,4 +1,4 @@
-package com.example.testweatherappcilation.common
+package com.example.testweatherappcilation.mvp.common
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
@@ -14,6 +14,7 @@ object HttpClientHolder {
                     prettyPrint = true
                     isLenient = true
                     ignoreUnknownKeys = true
+
                 })
             }
         }

@@ -1,6 +1,5 @@
-package com.example.testweatherappcilation.presentation
+package com.example.testweatherappcilation.mvp.domain.entity
 
-import android.content.res.Resources
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -14,7 +13,6 @@ data class WeatherUiModel(
     val textWind: String? = null,
     val textHumidity: String? = null,
     val textPressure: String? = null,
-
     val dateTime: String? = null,
     val districtName: String? = null,
     val localityName: String? = null,
