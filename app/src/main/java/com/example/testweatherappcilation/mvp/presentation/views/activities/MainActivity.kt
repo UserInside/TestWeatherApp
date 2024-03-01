@@ -6,7 +6,6 @@ import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
-import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
@@ -15,13 +14,15 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.lifecycleScope
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.ahmadrosid.svgloader.SvgLoader
 import com.example.testweatherappcilation.R
 import com.example.testweatherappcilation.databinding.ActivityMainBinding
 import com.example.testweatherappcilation.mvp.domain.repository.MainRepository
 import com.example.testweatherappcilation.mvp.domain.entity.WeatherUiModel
 import com.example.testweatherappcilation.mvp.domain.repository.DataStoreRepository
 import com.example.testweatherappcilation.mvp.domain.repository.LocationRepositoryImpl
+import com.example.testweatherappcilation.mvp.common.loadImageFromUrl
+import com.example.testweatherappcilation.mvp.common.toastLocationAccessDenied
+import com.example.testweatherappcilation.mvp.common.toastWrongCoordinates
 import com.example.testweatherappcilation.mvp.presentation.presenter.MainActivityPresenter
 import com.example.testweatherappcilation.mvp.presentation.views.adapters.ForecastRecyclerViewAdapter
 import com.google.android.gms.maps.model.LatLng
@@ -102,6 +103,29 @@ class MainActivity : MvpAppCompatActivity(), MainActivityView {
         }
     }
 
+    override fun showWeather(model: WeatherUiModel) {
+        binding.apply {
+            contentWeatherView.visibility = View.VISIBLE
+            includeProgressLayout.root.visibility = View.GONE
+            includeErrorLayout.root.visibility = View.GONE
+
+            textLocation.text = model.textLocation
+            textActualTimeAndYesterdayTemp.text = model.textActualTimeAndYesterdayTemp
+            textActualTemp.text = model.textActualTemp
+
+            imageCondition.loadImageFromUrl(getString(R.string.condition_icon_link, model.icon))
+
+            textCondition.text = model.textCondition
+            textFeelsLike.text = model.textFeelsLike
+            wind.text = model.textWind
+            humidity.text = model.textHumidity
+            pressure.text = model.textPressure
+
+            recyclerAdapter = ForecastRecyclerViewAdapter(model.forecasts, this@MainActivity)
+            recyclerForecasts.adapter = recyclerAdapter
+        }
+    }
+
     override fun showWelcome() {
         binding.contentWeatherView.visibility = View.GONE
     }
@@ -129,54 +153,8 @@ class MainActivity : MvpAppCompatActivity(), MainActivityView {
         }
     }
 
-    override fun showWeather(model: WeatherUiModel) {
-        binding.apply {
-            contentWeatherView.visibility = View.VISIBLE
-            includeProgressLayout.root.visibility = View.GONE
-            includeErrorLayout.root.visibility = View.GONE
-
-            textLocation.text = model.textLocation
-            textActualTimeAndYesterdayTemp.text = model.textActualTimeAndYesterdayTemp
-            textActualTemp.text = model.textActualTemp
-
-            SvgLoader.pluck().with(this@MainActivity).load(
-                getString(
-                    R.string.condition_icon_link, model.icon
-                ), imageCondition
-            )
-
-            textCondition.text = model.textCondition
-            textFeelsLike.text = model.textFeelsLike
-            wind.text = model.textWind
-            humidity.text = model.textHumidity
-            pressure.text = model.textPressure
-
-            recyclerAdapter = ForecastRecyclerViewAdapter(model.forecasts, this@MainActivity)
-            recyclerForecasts.adapter = recyclerAdapter
-        }
-    }
-
     override fun requestLocationPermission() {
         requestPermissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
-    }
-
-    private fun toastWrongCoordinates() {
-        Toast.makeText(
-            this@MainActivity, getString(R.string.wrong_coordinates),
-            Toast.LENGTH_LONG
-        ).show()
-    }
-
-    override fun toastLocationAccessDenied() {
-        Toast.makeText(this@MainActivity,
-            getString(R.string.location_access_denied),
-            Toast.LENGTH_SHORT
-        ).show()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        SvgLoader.pluck().close()
     }
 
     private fun requestPermissionLauncher(): ActivityResultLauncher<String> {
@@ -191,13 +169,8 @@ class MainActivity : MvpAppCompatActivity(), MainActivityView {
                     presenter.showWeatherAround()
                 }
             } else {
-                Toast.makeText(
-                    this@MainActivity,
-                    getString(R.string.location_access_denied),
-                    Toast.LENGTH_SHORT
-                ).show()
+                toastLocationAccessDenied()
             }
         }
     }
-
 }

@@ -1,6 +1,5 @@
 package com.example.testweatherappcilation.mvp.presentation.views.adapters
 
-import androidx.appcompat.app.AppCompatActivity
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -9,8 +8,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.ahmadrosid.svgloader.SvgLoader
 import com.example.testweatherappcilation.R
+import com.example.testweatherappcilation.mvp.common.loadImageFromUrl
 import com.example.testweatherappcilation.mvp.domain.entity.WeatherUiModelForecasts
 
 class ForecastRecyclerViewAdapter(
@@ -40,11 +39,7 @@ class ForecastRecyclerViewAdapter(
         val item = forecasts?.get(position)
         holder.textDay.text = if (position == 0) mContext.getString(R.string.today) else item?.forecastsDay
         holder.textDate.text = item?.forecastsDate
-        holder.imageCondition.let {
-            SvgLoader.pluck()
-                .with(mContext as AppCompatActivity)
-                .load("https://yastatic.net/weather/i/icons/funky/dark/${item?.forecastsIcon}.svg", it)
-        }
+        holder.imageCondition.loadImageFromUrl("https://yastatic.net/weather/i/icons/funky/dark/${item?.forecastsIcon}.svg")
         holder.textDayTemp.text = item?.forecastsTempDay
         holder.textNightTemp.text = item?.forecastsTempNight
         holder.textCondition.text = item?.forecastsCondition

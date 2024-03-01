@@ -12,5 +12,4 @@ interface MainActivityView : MvpView {
     fun showError()
     fun showWelcome()
     fun requestLocationPermission()
-    fun toastLocationAccessDenied()
 }

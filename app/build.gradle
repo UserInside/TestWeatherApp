@@ -50,16 +50,16 @@ android {
 
 
 dependencies {
+    //Ktor
     def ktor_version="2.3.0"
     implementation("io.ktor:ktor-client-core:$ktor_version")
     implementation("io.ktor:ktor-client-cio:$ktor_version")
     implementation("io.ktor:ktor-client-okhttp:$ktor_version")
     implementation("io.ktor:ktor-client-content-negotiation:$ktor_version")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
 
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     implementation "androidx.activity:activity-ktx:1.8.2"
-    implementation "com.google.android.gms:play-services-location:21.0.1"
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
     implementation 'androidx.core:core-ktx:1.12.0'
@@ -70,8 +70,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
-    implementation 'com.github.ar-android:AndroidSvgLoader:1.0.2'
-
+    //Datastore
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation("androidx.datastore:datastore-preferences-core:1.0.0")
 
@@ -87,6 +86,12 @@ dependencies {
     implementation "com.github.moxy-community:moxy-material:$moxy_version"
     implementation "com.github.moxy-community:moxy-ktx:$moxy_version"
 
-    //maps
+    //maps and location
+    implementation "com.google.android.gms:play-services-location:21.1.0"
     implementation 'com.google.android.gms:play-services-maps:18.2.0'
+
+    //Coil SVG Loader
+    implementation("io.coil-kt:coil:2.6.0")
+    implementation("io.coil-kt:coil-svg:2.6.0")
+
 }

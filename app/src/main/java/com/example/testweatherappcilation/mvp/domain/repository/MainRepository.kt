@@ -21,7 +21,7 @@ class MainRepository(
             ).request(coordinates)
         )
 
-
+      //Mock data
 //    @OptIn(ExperimentalSerializationApi::class)
 //    fun mockData(): WeatherUiModel {
 //        val json = Json {
