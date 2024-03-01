@@ -1,1 +1,1 @@
-![Main Activity low](https://github.com/UserInside/TestWeatherApp/assets/99077365/9207de34-729c-45f4-a44f-d6b3bda9ccf7)
+![Main Activity low](https://github.com/UserInside/TestWeatherApp/assets/99077365/2575b120-7e0d-487a-abbf-942d99c2e867)
